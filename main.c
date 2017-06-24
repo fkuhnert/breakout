@@ -93,17 +93,9 @@ int main( int argc, char* args[] ) {
                 {
                   if(bars[curH].draw != false) state += collisionNPC(&bars[curH], &ball);
                 }
-                
-                if(state == 1 || state == 2)
-                {
-                  ball.stepX = -ball.stepX;
-                  printf("Foi ao lado!\n\n");
-                }
-                else if (state == 4 || state == 5 || state == 8)
-                {
-                  ball.stepY = -ball.stepY;
-                  printf("Baixo/cima!\n\n");
-                }
+
+                if(state == 1 || state == 2) ball.stepX = -ball.stepX;
+                else if (state == 4 || state == 5 || state == 8) ball.stepY = -ball.stepY;
 
                 srcRect.x = 0; srcRect.y = 0;
                 srcRect.w = IMAGE_WIDTH;
