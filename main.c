@@ -24,7 +24,7 @@
 
 int main( int argc, char* args[] ) {
     SDL_Rect srcRect, dstRect, srcBarsRect, dstBarsRect;
-    int quit, curH, curW;
+    int quit, curH, curW, state;
 
     /*Event handler*/
     SDL_Event e;
@@ -40,9 +40,9 @@ int main( int argc, char* args[] ) {
         }
         else {
             /*Create NPC*/
-
-            ball = createNPC(rand() % (SCREEN_WIDTH / 2 - IMAGE_WIDTH),
-                             rand() % (SCREEN_HEIGHT / 2 - IMAGE_HEIGHT),
+            Begin:
+            ball = createNPC(rand() % (SCREEN_WIDTH - IMAGE_WIDTH),
+                             300 + rand() % (SCREEN_HEIGHT - 300) - IMAGE_HEIGHT,
                              rand() % 2 ? -1: 1,
                              rand() % 2 ? -1: 1,
                              gJPGSurface);
@@ -59,16 +59,27 @@ int main( int argc, char* args[] ) {
 
             /*While application is running*/
             while( !quit ) {
-                while( SDL_PollEvent( &e ) != 0 ) {
-                    switch (e.type) {
+                while( SDL_PollEvent( &e ) != 0 )
+                {
+                    switch (e.type)
+                    {
                         case SDL_QUIT:
                             quit = true;
                             break;
                         case SDL_KEYDOWN:
-                            if (e.key.keysym.sym == SDLK_ESCAPE) {
-                                quit = true;
+                            if (e.key.keysym.sym == SDLK_ESCAPE) quit = true;
+                            if (e.key.keysym.sym == SDLK_UP)
+                            {
+                              ball.stepX += 1;
+                              ball.stepY += 1;
                             }
-                        break;
+                            if (e.key.keysym.sym == SDLK_DOWN)
+                            {
+                              ball.stepX -= 1;
+                              ball.stepY -= 1;
+                            }
+                            if (e.key.keysym.sym == SDLK_r) goto Begin;
+                            break;
                     }
                 }
 
@@ -78,7 +89,21 @@ int main( int argc, char* args[] ) {
                               0xFF, 0xFF, 0xFF ) );
 
                 moveNPC(&ball);
-                for(curH = 0; curH < 30; curH++) collisionNPC(&bars[curH], &ball);
+                for(state = 0, curH = 0; curH < 30; curH++)
+                {
+                  if(bars[curH].draw != false) state += collisionNPC(&bars[curH], &ball);
+                }
+                
+                if(state == 1 || state == 2)
+                {
+                  ball.stepX = -ball.stepX;
+                  printf("Foi ao lado!\n\n");
+                }
+                else if (state == 4 || state == 5 || state == 8)
+                {
+                  ball.stepY = -ball.stepY;
+                  printf("Baixo/cima!\n\n");
+                }
 
                 srcRect.x = 0; srcRect.y = 0;
                 srcRect.w = IMAGE_WIDTH;

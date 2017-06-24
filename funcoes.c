@@ -33,48 +33,55 @@ void moveNPC(NPC *p) {
     }
 }
 
-void collisionNPC(NPC *brick, NPC *circle)
+int collisionNPC(NPC *object, NPC *circle)
 {
-  if(circle->posX + IMAGE_WIDTH <= brick->posX + 80 && circle->posX +
-     IMAGE_WIDTH >= brick->posX && circle->posY <= brick->posY + 40
-     && circle->posY + IMAGE_HEIGHT >= brick->posY)
+  if(circle->posX + IMAGE_WIDTH - 5 <= object->posX + 80 && circle->posX +
+    IMAGE_WIDTH - 5 >= object->posX && circle->posY + 5 <= object->posY + 40
+    && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
-    brick->draw = false;
-    brick->posX = SCREEN_WIDTH;
-    brick->posY = SCREEN_HEIGHT;
-    circle->stepX = -circle->stepX;
-    circle->posX += circle->stepX;
+    printf("Conta: %d\nPosicao bola: %d,%d\nPosicao plat: %d,%d\n", circle->posX + IMAGE_WIDTH - 5 - circle->posX, circle->posY, object->posX, object->posY);
+    if(circle->posX + IMAGE_WIDTH - 5 - object->posX <= 1 && circle->posX +
+       IMAGE_WIDTH - 5 - object->posX >= 0)
+    {
+      object->draw = false;
+      object->posX = SCREEN_WIDTH;
+      object->posY = SCREEN_HEIGHT;
+      printf("Colidiu no lado esquerdo!\n");
+      return 1;
+    }
+    else
+    {
+      object->draw = false;
+      object->posX = SCREEN_WIDTH;
+      object->posY = SCREEN_HEIGHT;
+      printf("Colidiu em baixo ou cima e a esqueda!\n");
+      return 4;
+    }
   }
-  else if(circle->posX >= brick->posX && circle->posX <= brick->posX + 80
-     && circle->posY <= brick->posY + 40
-     && circle->posY + IMAGE_HEIGHT >= brick->posY)
+  else if(circle->posX + 5 >= object->posX && circle->posX + 5 <= object->posX + 80
+    && circle->posY + 5 <= object->posY + 40
+    && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
-    brick->draw = false;
-    brick->posX = SCREEN_WIDTH;
-    brick->posY = SCREEN_HEIGHT;
-    circle->stepX = -circle->stepX;
-    circle->posX += circle->stepX;
+    printf("Conta: %d\nPosicao bola: %d,%d\nPosicao plat: %d,%d\n", circle->posX + 5 - (object->posX + 80), circle->posX, circle->posY, object->posX, object->posY);
+    if(circle->posX + 5 - (object->posX + 80) <= 1 && circle->posX + 5 -
+       (object->posX + 80) >= 0)
+    {
+      object->draw = false;
+      object->posX = SCREEN_WIDTH;
+      object->posY = SCREEN_HEIGHT;
+      printf("Colidiu no lado direito!\n");
+      return 1;
+    }
+    else
+    {
+      object->draw = false;
+      object->posX = SCREEN_WIDTH;
+      object->posY = SCREEN_HEIGHT;
+      printf("Colidiu em baixo ou cima e a direita!\n");
+      return 4;
+    }
   }
-  else if(circle->posX + IMAGE_WIDTH >= brick->posX && circle->posX <=
-     brick->posX + 80 && circle->posY <= brick->posY + IMAGE_HEIGHT
-     && circle->posY + 40 > brick->posY)
-  {
-    brick->draw = false;
-    brick->posX = SCREEN_WIDTH;
-    brick->posY = SCREEN_HEIGHT;
-    circle->stepY = -circle->stepY;
-    circle->posY += circle->stepY;
-  }
-  else if(circle->posX + IMAGE_WIDTH >= brick->posX && circle->posX <=
-     brick->posX + 80 && circle->posY + IMAGE_HEIGHT >= brick->posY
-     && circle->posY < brick->posY + 40)
-  {
-    brick->draw = false;
-    brick->posX = SCREEN_WIDTH;
-    brick->posY = SCREEN_HEIGHT;
-    circle->stepY = -circle->stepY;
-    circle->posY += circle->stepY;
-  }
+  return 0;
 }
 
 /*Create NPC*/

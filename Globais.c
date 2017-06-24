@@ -17,8 +17,8 @@
 
 const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
-const int IMAGE_WIDTH = 61;
-const int IMAGE_HEIGHT = 61;
+const int IMAGE_WIDTH = 31;
+const int IMAGE_HEIGHT = 31;
 
 /*The window we'll be rendering to*/
 SDL_Window* gWindow = NULL;

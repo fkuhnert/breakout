@@ -31,6 +31,6 @@ NPC createNPC( int posX, int posY, int stepX, int stepY, SDL_Surface *image);
 void moveNPC(NPC *p);
 
 /*Check collision*/
-void collisionNPC(NPC *obj1, NPC *obj2);
+int collisionNPC(NPC *obj1, NPC *obj2);
 
 #endif
