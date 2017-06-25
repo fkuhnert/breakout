@@ -149,16 +149,19 @@ int main( int argc, char* args[] ) {
                   printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
                   quit = true;
                 }
-
-                for (curW = 0; curW < 30; curW++)
-                {
-                  dstBarsRect.x = bars[curW].posX;
-                  dstBarsRect.y = bars[curW].posY;
-                  if(SDL_BlitSurface(bars[curW].image, &srcBarsRect, gScreenSurface, &dstBarsRect) < 0)
+                else{
+                  for (curW = 0; curW < 30; curW++)
                   {
-                    printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
-                    quit = true;
-                    break;
+                    if(bars[curW].draw != 0){
+                      dstBarsRect.x = bars[curW].posX;
+                      dstBarsRect.y = bars[curW].posY;
+                      if(SDL_BlitSurface(bars[curW].image, &srcBarsRect, gScreenSurface, &dstBarsRect) < 0)
+                      {
+                        printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
+                        quit = true;
+                        break;
+                      }
+                    }
                   }
                 }
 
