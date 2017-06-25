@@ -23,11 +23,8 @@
 #include "NPC.h"
 
 int main( int argc, char* args[] ) {
-    SDL_Rect srcRect, dstRect, srcBarsRect, dstBarsRect;
-    int quit, curH, curW, state;
-
-    /*Event handler*/
-    SDL_Event e;
+    SDL_Rect srcRect, dstRect, srcBarsRect, dstBarsRect, srcPlayerRect, dstPlayerRect;
+    int quit, curH, curW;
 
     /*Start up SDL and create window*/
     if( !init() ) {
@@ -40,9 +37,9 @@ int main( int argc, char* args[] ) {
         }
         else {
             /*Create NPC*/
-            Begin:
+
             ball = createNPC(rand() % (SCREEN_WIDTH - IMAGE_WIDTH),
-                             300 + rand() % (SCREEN_HEIGHT - 300) - IMAGE_HEIGHT,
+                             rand() % (SCREEN_HEIGHT - IMAGE_HEIGHT),
                              rand() % 2 ? -1: 1,
                              rand() % 2 ? -1: 1,
                              gJPGSurface);
@@ -54,32 +51,47 @@ int main( int argc, char* args[] ) {
               }
             }
 
+            player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT - PLAYER_HEIGHT, 0, 0, gPlayer);
+
             /*Main loop flag*/
             quit = false;
+                            /* Please change this */
+                            Mix_PlayMusic( gMenu, -1 );
 
             /*While application is running*/
             while( !quit ) {
-                while( SDL_PollEvent( &e ) != 0 )
-                {
-                    switch (e.type)
-                    {
+                while( SDL_PollEvent( &e ) != 0 ) {
+                    switch (e.type) {
                         case SDL_QUIT:
                             quit = true;
                             break;
                         case SDL_KEYDOWN:
-                            if (e.key.keysym.sym == SDLK_ESCAPE) quit = true;
-                            if (e.key.keysym.sym == SDLK_UP)
-                            {
-                              ball.stepX += 1;
-                              ball.stepY += 1;
-                            }
-                            if (e.key.keysym.sym == SDLK_DOWN)
-                            {
-                              ball.stepX -= 1;
-                              ball.stepY -= 1;
-                            }
-                            if (e.key.keysym.sym == SDLK_r) goto Begin;
-                            break;
+                            switch (e.key.keysym.sym){
+                              case SDLK_ESCAPE:
+                                quit = true;
+                                break;
+                              case SDLK_LEFT:
+                                player.stepX = -3;
+                                break;
+                              case SDLK_RIGHT:
+                                player.stepX = 3;
+                                break;
+                              }
+                        break;
+                        case SDL_KEYUP:
+                          switch (e.key.keysym.sym){
+                            case SDLK_LEFT:
+                              while(player.stepX < 0){
+                                player.stepX += 1;
+                              }
+                              break;
+                            case SDLK_RIGHT:
+                              while(player.stepX > 0){
+                                player.stepX -= 1;
+                              }
+                              break;
+                          }
+                        break;
                     }
                 }
 
@@ -88,7 +100,67 @@ int main( int argc, char* args[] ) {
                               SDL_MapRGB( gScreenSurface->format,
                               0xFF, 0xFF, 0xFF ) );
 
+                checkcollideplayer(&ball, &player);
+
                 moveNPC(&ball);
+                movePlayer(&player);
+
+                srcRect.x = 0; srcRect.y = 0;
+                srcRect.w = IMAGE_WIDTH;
+                srcRect.h = IMAGE_HEIGHT;
+
+                srcBarsRect.x = 0; srcBarsRect.y = 0;
+                srcBarsRect.w = 80;
+                srcBarsRect.h = 40;
+
+                srcPlayerRect.x = 0; srcPlayerRect.y = 0;
+                srcPlayerRect.w = PLAYER_WIDTH;
+                srcPlayerRect.h = PLAYER_HEIGHT;
+
+                dstRect.x = ball.posX;
+                dstRect.y = ball.posY;
+
+                dstPlayerRect.x = player.posX;
+                dstPlayerRect.y = player.posY;
+
+                if( SDL_BlitSurface( ball.image, &srcRect, gScreenSurface, &dstRect ) < 0 )
+                {
+                  printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                  quit = true;
+                }
+                if( SDL_BlitSurface( player.image, &srcPlayerRect, gScreenSurface, &dstPlayerRect) < 0 )
+                {
+                  printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                  quit = true;
+                }
+
+                for (curW = 0; curW < 30; curW++)
+                {
+                  dstBarsRect.x = bars[curW].posX;
+                  dstBarsRect.y = bars[curW].posY;
+                  if(SDL_BlitSurface(bars[curW].image, &srcBarsRect, gScreenSurface, &dstBarsRect) < 0)
+                  {
+                    printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
+                    quit = true;
+                    break;
+                  }
+                }
+
+                /*Update the surface*/
+                SDL_UpdateWindowSurface( gWindow );
+
+                /* Not so good solution, depends on your computer*/
+                SDL_Delay(5);
+            }
+        }
+    }
+
+    /*Free resources and closing SDL*/
+    closing();
+
+    return 0;
+}
+
                 for(state = 0, curH = 0; curH < 30; curH++)
                 {
                   if(bars[curH].draw != false) state += collisionNPC(&bars[curH], &ball);
@@ -104,50 +176,3 @@ int main( int argc, char* args[] ) {
                   ball.stepY = -ball.stepY;
                   printf("Baixo/cima!\n\n");
                 }
-
-                srcRect.x = 0; srcRect.y = 0;
-                srcRect.w = IMAGE_WIDTH;
-                srcRect.h = IMAGE_HEIGHT;
-                srcBarsRect.x = 0; srcBarsRect.y = 0;
-                srcBarsRect.w = 80;
-                srcBarsRect.h = 40;
-                dstRect.x = ball.posX;
-                dstRect.y = ball.posY;
-                if( SDL_BlitSurface( ball.image, &srcRect, gScreenSurface, &dstRect ) < 0 )
-                {
-                  printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
-                  quit = true;
-                }
-                else
-                {
-                  for (curW = 0; curW < 30; curW++)
-                  {
-                    if(bars[curW].draw != 0)
-                    {
-                      dstBarsRect.x = bars[curW].posX;
-                      dstBarsRect.y = bars[curW].posY;
-                      if(SDL_BlitSurface(bars[curW].image, &srcBarsRect, gScreenSurface,
-                                        &dstBarsRect) < 0)
-                      {
-                        printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
-                        quit = true;
-                        break;
-                      }
-                    }
-                  }
-
-                /*Update the surface*/
-                SDL_UpdateWindowSurface( gWindow );
-
-                /* Not so good solution, depends on your computer*/
-                SDL_Delay(2);
-                }
-            }
-        }
-    }
-
-    /*Free resources and closing SDL*/
-    closing();
-
-    return 0;
-}

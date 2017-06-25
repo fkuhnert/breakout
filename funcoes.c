@@ -33,55 +33,28 @@ void moveNPC(NPC *p) {
     }
 }
 
-int collisionNPC(NPC *object, NPC *circle)
-{
-  if(circle->posX + IMAGE_WIDTH - 5 <= object->posX + 80 && circle->posX +
-    IMAGE_WIDTH - 5 >= object->posX && circle->posY + 5 <= object->posY + 40
-    && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
-  {
-    printf("Conta: %d\nPosicao bola: %d,%d\nPosicao plat: %d,%d\n", circle->posX + IMAGE_WIDTH - 5 - circle->posX, circle->posY, object->posX, object->posY);
-    if(circle->posX + IMAGE_WIDTH - 5 - object->posX <= 1 && circle->posX +
-       IMAGE_WIDTH - 5 - object->posX >= 0)
-    {
-      object->draw = false;
-      object->posX = SCREEN_WIDTH;
-      object->posY = SCREEN_HEIGHT;
-      printf("Colidiu no lado esquerdo!\n");
-      return 1;
+void checkcollideplayer(NPC *circle, NPC *p){
+  float dist;
+  if (circle->posY + IMAGE_HEIGHT == p->posY && ((circle->posX + IMAGE_WIDTH > p->posX && circle->posX + IMAGE_WIDTH < p->posX + PLAYER_WIDTH) ||
+      (circle->posX > p->posX && circle->posX < p->posX + PLAYER_WIDTH))){
+        circle->stepY = -circle->stepY;
+        Mix_PlayChannel(-1, gBottom, 0);
+        dist = (circle->posX + IMAGE_WIDTH/2) - (p->posX + PLAYER_WIDTH/2);
+        circle->stepX += dist/15;
+        circle->stepX += p->stepX/2;
+        if (circle->stepX > 4){
+          circle->stepX = 4;
+        }
+        if (circle->stepX < -4){
+          circle ->stepX = -4;
+        }
+      }
+}
+
+void movePlayer(NPC *p){
+    if ((p->posX + PLAYER_WIDTH + p->stepX <= SCREEN_WIDTH) && (p->posX + p->stepX >= 0)){
+      p->posX += p->stepX;
     }
-    else
-    {
-      object->draw = false;
-      object->posX = SCREEN_WIDTH;
-      object->posY = SCREEN_HEIGHT;
-      printf("Colidiu em baixo ou cima e a esqueda!\n");
-      return 4;
-    }
-  }
-  else if(circle->posX + 5 >= object->posX && circle->posX + 5 <= object->posX + 80
-    && circle->posY + 5 <= object->posY + 40
-    && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
-  {
-    printf("Conta: %d\nPosicao bola: %d,%d\nPosicao plat: %d,%d\n", circle->posX + 5 - (object->posX + 80), circle->posX, circle->posY, object->posX, object->posY);
-    if(circle->posX + 5 - (object->posX + 80) <= 1 && circle->posX + 5 -
-       (object->posX + 80) >= 0)
-    {
-      object->draw = false;
-      object->posX = SCREEN_WIDTH;
-      object->posY = SCREEN_HEIGHT;
-      printf("Colidiu no lado direito!\n");
-      return 1;
-    }
-    else
-    {
-      object->draw = false;
-      object->posX = SCREEN_WIDTH;
-      object->posY = SCREEN_HEIGHT;
-      printf("Colidiu em baixo ou cima e a direita!\n");
-      return 4;
-    }
-  }
-  return 0;
 }
 
 /*Create NPC*/
@@ -147,27 +120,50 @@ int loadMedia() {
     /*Load PNG surface*/
     gJPGSurface = loadSurface( "./circle.png" );
     gBlock = loadSurface("./block.png");
+    gPlayer = loadSurface("./block.png");
     colorkey = SDL_MapRGB (gJPGSurface -> format, 0xFF, 0xFF, 0xFF);
     SDL_SetColorKey(gJPGSurface, SDL_TRUE, colorkey);
-    if( gJPGSurface == NULL || gBlock == NULL) {
+    if( gJPGSurface == NULL || gBlock == NULL || gPlayer == NULL) {
         printf( "Failed to load image! SDL Error: %s\n", SDL_GetError() );
         success = false;
     }
-    gBottom = Mix_LoadWAV("./hitbottom.wav");
+
+    gBottom = Mix_LoadWAV("./Sounds/hitbottom.wav");
     if( gBottom == NULL ){
         printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
         success = false;
     }
-    gWall = Mix_LoadWAV("./hitwall.wav");
+    gWall = Mix_LoadWAV("./Sounds/hitwall.wav");
     if( gWall == NULL ){
         printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
         success = false;
     }
-    gTop = Mix_LoadWAV("./hittop.wav");
+    gTop = Mix_LoadWAV("./Sounds/hittop.wav");
     if( gTop == NULL ){
         printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
         success = false;
     }
+    gMenu = Mix_LoadMUS("./Sounds/mus_menu.wav");
+    if( gMenu == NULL ){
+        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+    gFase1 = Mix_LoadMUS("./Sounds/mus_fase1.wav");
+    if( gFase1 == NULL ){
+        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+    gFase2 = Mix_LoadMUS("./Sounds/mus_fase2.wav");
+    if( gFase2 == NULL ){
+        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+    gFase3 = Mix_LoadMUS("./Sounds/mus_fase3.wav");
+    if( gTop == NULL ){
+        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        success = false;
+    }
+
     return success;
 }
 
@@ -186,11 +182,20 @@ void closing() {
     Mix_FreeChunk(gBottom);
     Mix_FreeChunk(gTop);
     Mix_FreeChunk(gWall);
+    Mix_FreeMusic( gFase3 );
+    Mix_FreeMusic( gFase2 );
+    Mix_FreeMusic( gFase1 );
+    Mix_FreeMusic( gMenu );
     gBottom = NULL;
     gTop = NULL;
     gWall = NULL;
+    gMenu = NULL;
+    gFase1 = NULL;
+    gFase2 = NULL;
+    gFase3 = NULL;
 
     /*Quit SDL subsystems*/
+    Mix_CloseAudio();
     IMG_Quit();
     SDL_Quit();
 }
@@ -216,4 +221,55 @@ SDL_Surface* loadSurface( char *path ) {
     }
 
     return optimizedSurface;
+}
+
+int collisionNPC(NPC *object, NPC *circle)
+{
+  if(circle->posX + IMAGE_WIDTH - 5 <= object->posX + 80 && circle->posX +
+    IMAGE_WIDTH - 5 >= object->posX && circle->posY + 5 <= object->posY + 40
+    && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
+  {
+    printf("Conta: %d\nPosicao bola: %d,%d\nPosicao plat: %d,%d\n", circle->posX + IMAGE_WIDTH - 5 - circle->posX, circle->posY, object->posX, object->posY);
+    if(circle->posX + IMAGE_WIDTH - 5 - object->posX <= 1 && circle->posX +
+       IMAGE_WIDTH - 5 - object->posX >= 0)
+    {
+      object->draw = false;
+      object->posX = SCREEN_WIDTH;
+      object->posY = SCREEN_HEIGHT;
+      printf("Colidiu no lado esquerdo!\n");
+      return 1;
+    }
+    else
+    {
+      object->draw = false;
+      object->posX = SCREEN_WIDTH;
+      object->posY = SCREEN_HEIGHT;
+      printf("Colidiu em baixo ou cima e a esqueda!\n");
+      return 4;
+    }
+  }
+  else if(circle->posX + 5 >= object->posX && circle->posX + 5 <= object->posX + 80
+    && circle->posY + 5 <= object->posY + 40
+    && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
+  {
+    printf("Conta: %d\nPosicao bola: %d,%d\nPosicao plat: %d,%d\n", circle->posX + 5 - (object->posX + 80), circle->posX, circle->posY, object->posX, object->posY);
+    if(circle->posX + 5 - (object->posX + 80) <= 1 && circle->posX + 5 -
+       (object->posX + 80) >= 0)
+    {
+      object->draw = false;
+      object->posX = SCREEN_WIDTH;
+      object->posY = SCREEN_HEIGHT;
+      printf("Colidiu no lado direito!\n");
+      return 1;
+    }
+    else
+    {
+      object->draw = false;
+      object->posX = SCREEN_WIDTH;
+      object->posY = SCREEN_HEIGHT;
+      printf("Colidiu em baixo ou cima e a direita!\n");
+      return 4;
+    }
+  }
+  return 0;
 }

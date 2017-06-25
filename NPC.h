@@ -14,5 +14,6 @@ typedef struct _NPC {
 
 extern NPC ball;
 extern NPC bars[30];
+extern NPC player;
 
 #endif
