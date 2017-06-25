@@ -24,7 +24,7 @@
 
 int main( int argc, char* args[] ) {
     SDL_Rect srcRect, dstRect, srcBarsRect, dstBarsRect, srcPlayerRect, dstPlayerRect;
-    int quit, curH, curW;
+    int quit, curH, curW, state;
 
     /*Start up SDL and create window*/
     if( !init() ) {
@@ -105,6 +105,22 @@ int main( int argc, char* args[] ) {
                 moveNPC(&ball);
                 movePlayer(&player);
 
+                for(state = 0, curH = 0; curH < 30; curH++)
+                {
+                  if(bars[curH].draw != false) state += collisionNPC(&bars[curH], &ball);
+                }
+
+                if(state == 1 || state == 2)
+                {
+                  ball.stepX = -ball.stepX;
+                  printf("Foi ao lado!\n\n");
+                }
+                else if (state == 4 || state == 5 || state == 8)
+                {
+                  ball.stepY = -ball.stepY;
+                  printf("Baixo/cima!\n\n");
+                }
+
                 srcRect.x = 0; srcRect.y = 0;
                 srcRect.w = IMAGE_WIDTH;
                 srcRect.h = IMAGE_HEIGHT;
@@ -160,19 +176,3 @@ int main( int argc, char* args[] ) {
 
     return 0;
 }
-
-                for(state = 0, curH = 0; curH < 30; curH++)
-                {
-                  if(bars[curH].draw != false) state += collisionNPC(&bars[curH], &ball);
-                }
-                
-                if(state == 1 || state == 2)
-                {
-                  ball.stepX = -ball.stepX;
-                  printf("Foi ao lado!\n\n");
-                }
-                else if (state == 4 || state == 5 || state == 8)
-                {
-                  ball.stepY = -ball.stepY;
-                  printf("Baixo/cima!\n\n");
-                }
