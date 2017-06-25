@@ -225,13 +225,18 @@ SDL_Surface* loadSurface( char *path ) {
 
 int collisionNPC(NPC *object, NPC *circle)
 {
+  int op;
+  int vel = circle->stepX;
+  vel = vel < 0 ? -vel : vel;
   if(circle->posX + IMAGE_WIDTH - 5 <= object->posX + 80 && circle->posX +
     IMAGE_WIDTH - 5 >= object->posX && circle->posY + 5 <= object->posY + 40
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
-    printf("Conta: %d\nPosicao bola: %d,%d\nPosicao plat: %d,%d\n", circle->posX + IMAGE_WIDTH - 5 - circle->posX, circle->posY, object->posX, object->posY);
-    if(circle->posX + IMAGE_WIDTH - 5 - object->posX <= 1 && circle->posX +
-       IMAGE_WIDTH - 5 - object->posX >= 0)
+    op = circle->posX + IMAGE_WIDTH - 5 - object->posX;
+    printf("Conta: %d\nPosicao bola: %d,%d\nPosicao plat: %d,%d\n", op, circle->posX, circle->posY, object->posX, object->posY);
+    printf("Vel: %d\n", vel);
+    op = op < 0 ? -op : op;
+    if(op <= vel)
     {
       object->draw = false;
       object->posX = SCREEN_WIDTH;
@@ -252,9 +257,11 @@ int collisionNPC(NPC *object, NPC *circle)
     && circle->posY + 5 <= object->posY + 40
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
-    printf("Conta: %d\nPosicao bola: %d,%d\nPosicao plat: %d,%d\n", circle->posX + 5 - (object->posX + 80), circle->posX, circle->posY, object->posX, object->posY);
-    if(circle->posX + 5 - (object->posX + 80) <= 1 && circle->posX + 5 -
-       (object->posX + 80) >= 0)
+    op = circle->posX + 5 - (object->posX + 80);
+    printf("Conta: %d\nPosicao bola: %d,%d\nPosicao plat: %d,%d\n", op, circle->posX, circle->posY, object->posX, object->posY);
+    printf("Vel: %d\n", vel);
+    op = op < 0 ? -op : op;
+    if(op <= vel)
     {
       object->draw = false;
       object->posX = SCREEN_WIDTH;
