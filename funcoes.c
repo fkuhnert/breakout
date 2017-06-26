@@ -37,18 +37,11 @@ void moveNPC(NPC *p) {
 void checkcollideplayer(NPC *circle, NPC *p){
   float dist, coeff;
   if (circle->posY + circle->stepY + IMAGE_HEIGHT > p->posY && ((circle->posX + IMAGE_WIDTH > p->posX && circle->posX + IMAGE_WIDTH < p->posX + PLAYER_WIDTH) ||
-      (circle->posX > p->posX && circle->posX < p->posX + PLAYER_WIDTH))){
+      (circle->posX > p->posX && circle->posX < p->posX + PLAYER_WIDTH)))
+      {
         Mix_PlayChannel(-1, gBottom, 0);
         dist = (circle->posX + IMAGE_WIDTH/2) - (p->posX + PLAYER_WIDTH/2);
         coeff = dist/20;
-        if (dist < 0){
-          if (circle->stepX < 0) circle->stepX *= coeff;
-          else if (circle->stepX > 0) circle->stepX /= coeff;
-        }
-        else if (dist > 0){
-          if (circle->stepX < 0) circle->stepX /= coeff;
-          else if (circle->stepX > 0) circle->stepX *= coeff;
-        }
         circle->stepX += coeff;
         if (circle->stepX > 4) circle->stepX = 4;
         else if (circle->stepX < -4) circle->stepX = -4;

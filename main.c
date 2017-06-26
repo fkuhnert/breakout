@@ -27,7 +27,7 @@
 int main(int argc, char* args[])
 {
     SDL_Rect srcRect, dstRect, srcBarsRect, dstBarsRect, srcPlayerRect, dstPlayerRect;
-    int quit, curH, curW, curScreen, state, quantBroke;
+    int quit, curH, curW, curScreen, curSong, state, quantBroke;
 
     /*Start up SDL and create window*/
     if(!init()) printf("Failed to initialize!\n");
@@ -56,10 +56,14 @@ int main(int argc, char* args[])
             /*Main loop flag*/
             quit = false;
             curScreen = SCREEN_MENU;
-            Mix_PlayMusic(gMenu, -1);
             /*While application is running*/
             while(!quit)
             {
+
+              Mix_FadeOutMusic(100);
+              Mix_PlayMusic(gMenu, -1);
+              curSong = 0;
+
                 while(curScreen == SCREEN_MENU && !quit)
                 {
                   while( SDL_PollEvent( &e ) != 0 )
@@ -95,6 +99,11 @@ int main(int argc, char* args[])
                 }
                 while(curScreen == SCREEN_GAME && !quit)
                 {
+                  if (curSong == 0){
+                    Mix_FadeOutMusic(100);
+                    Mix_FadeInMusic(gFase1, 1, 100);
+                    curSong = 1;
+                  }
                   while( SDL_PollEvent( &e ) != 0 )
                   {
                       switch (e.type)
@@ -170,23 +179,22 @@ int main(int argc, char* args[])
                   dstPlayerRect.x = player.posX;
                   dstPlayerRect.y = player.posY;
 
-                dstRect.x = ball.posX;
-                dstRect.y = ball.posY;
+                  dstRect.x = ball.posX;
+                  dstRect.y = ball.posY;
 
-                dstPlayerRect.x = player.posX;
-                dstPlayerRect.y = player.posY;
+                  dstPlayerRect.x = player.posX;
+                  dstPlayerRect.y = player.posY;
 
-                if( SDL_BlitSurface( ball.image, &srcRect, gScreenSurface, &dstRect ) < 0 )
-                {
-                  printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
-                  quit = true;
-                }
-                if( SDL_BlitSurface( player.image, &srcPlayerRect, gScreenSurface, &dstPlayerRect) < 0 )
-                {
-                  printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
-                  quit = true;
-                }
-                else{
+                  if( SDL_BlitSurface( ball.image, &srcRect, gScreenSurface, &dstRect ) < 0 )
+                  {
+                    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                    quit = true;
+                  }
+                  if( SDL_BlitSurface( player.image, &srcPlayerRect, gScreenSurface, &dstPlayerRect) < 0 )
+                  {
+                    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                    quit = true;
+                  }
                   for (curW = 0; curW < 30; curW++)
                   {
                     if(bars[curW].draw != 0){
@@ -198,23 +206,6 @@ int main(int argc, char* args[])
                         quit = true;
                         break;
                       }
-                    }
-                  }
-                  if( SDL_BlitSurface( player.image, &srcPlayerRect, gScreenSurface, &dstPlayerRect) < 0 )
-                  {
-                    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
-                    quit = true;
-                  }
-
-                  for (curW = 0; curW < 30; curW++)
-                  {
-                    dstBarsRect.x = bars[curW].posX;
-                    dstBarsRect.y = bars[curW].posY;
-                    if(SDL_BlitSurface(bars[curW].image, &srcBarsRect, gScreenSurface, &dstBarsRect) < 0)
-                    {
-                      printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
-                      quit = true;
-                      break;
                     }
                   }
                   /*Update the surface*/
@@ -229,5 +220,4 @@ int main(int argc, char* args[])
     /*Free resources and closing SDL*/
     closing();
     return 0;
-  }
 }
