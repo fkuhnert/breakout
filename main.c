@@ -79,6 +79,7 @@ int main(int argc, char* args[])
                           case SDLK_DOWN:
                             curScreen = SCREEN_GAME;
                             Mix_PlayChannel(-1, gGameBegin, 0);
+                            for(state = 0; state < 30; state++) bars[state].draw = true;
                             break;
                         }
                         break;
@@ -194,7 +195,8 @@ int main(int argc, char* args[])
                   }
                   for (curW = 0; curW < 30; curW++)
                   {
-                    if(bars[curW].draw != 0){
+                    if(bars[curW].draw != 0)
+                    {
                       dstBarsRect.x = bars[curW].posX;
                       dstBarsRect.y = bars[curW].posY;
                       if(SDL_BlitSurface(bars[curW].image, &srcBarsRect, gScreenSurface, &dstBarsRect) < 0)
@@ -207,13 +209,12 @@ int main(int argc, char* args[])
                   }
                   /*Update the surface*/
                   SDL_UpdateWindowSurface(gWindow);
-
                   /* Not so good solution, depends on your computer*/
                   SDL_Delay(5);
+                  }
+                }
+              }
             }
-         }
-      }
-    }
     /*Free resources and closing SDL*/
     closing();
     return 0;
