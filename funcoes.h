@@ -37,3 +37,5 @@ void checkcollideplayer(NPC *circle, NPC *player);
 #endif
 
 int collisionNPC(NPC *obj1, NPC *obj2);
+
+void checkspeed(NPC *p);

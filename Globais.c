@@ -25,8 +25,8 @@ const int SCREEN_WIDTH = 800;
 const int SCREEN_HEIGHT = 600;
 const int IMAGE_WIDTH = 31;
 const int IMAGE_HEIGHT = 31;
-const int PLAYER_WIDTH = 80;
-const int PLAYER_HEIGHT = 40;
+const int PLAYER_WIDTH = 160;
+const int PLAYER_HEIGHT = 30;
 
 /*Event handler*/
 SDL_Event e;

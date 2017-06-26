@@ -14,6 +14,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
@@ -50,7 +51,7 @@ int main(int argc, char* args[])
               }
             }
 
-            player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT - PLAYER_HEIGHT, 0, 0, gPlayer);
+            player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT - PLAYER_HEIGHT - 2, 0, 0, gPlayer);
 
             /*Main loop flag*/
             quit = false;
@@ -175,10 +176,35 @@ int main(int argc, char* args[])
                   dstPlayerRect.x = player.posX;
                   dstPlayerRect.y = player.posY;
 
-                  if( SDL_BlitSurface(ball.image, &srcRect, gScreenSurface, &dstRect) < 0)
+                dstRect.x = ball.posX;
+                dstRect.y = ball.posY;
+
+                dstPlayerRect.x = player.posX;
+                dstPlayerRect.y = player.posY;
+
+                if( SDL_BlitSurface( ball.image, &srcRect, gScreenSurface, &dstRect ) < 0 )
+                {
+                  printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                  quit = true;
+                }
+                if( SDL_BlitSurface( player.image, &srcPlayerRect, gScreenSurface, &dstPlayerRect) < 0 )
+                {
+                  printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                  quit = true;
+                }
+                else{
+                  for (curW = 0; curW < 30; curW++)
                   {
-                    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
-                    quit = true;
+                    if(bars[curW].draw != 0){
+                      dstBarsRect.x = bars[curW].posX;
+                      dstBarsRect.y = bars[curW].posY;
+                      if(SDL_BlitSurface(bars[curW].image, &srcBarsRect, gScreenSurface, &dstBarsRect) < 0)
+                      {
+                        printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
+                        quit = true;
+                        break;
+                      }
+                    }
                   }
                   if( SDL_BlitSurface( player.image, &srcPlayerRect, gScreenSurface, &dstPlayerRect) < 0 )
                   {
