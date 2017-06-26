@@ -26,7 +26,7 @@ SDL_Texture* loadTexture( char *path );
 
 /*Create NPC*/
 NPC createNPC(int posX, int posY, int stepX, int stepY, SDL_Texture *image,
-              int imgW, int imgH);
+              int imgW, int imgH, int hp);
 
 /*Move NPC*/
 void moveNPC(NPC *p);

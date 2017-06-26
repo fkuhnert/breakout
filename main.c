@@ -27,7 +27,8 @@
 int main(int argc, char* args[])
 {
     SDL_Rect dstRect, dstBarsRect, dstPlayerRect;
-    int quit, curH, curW, curScreen, curSong, state, quantBroke;
+    int quit, curH, curW, curScreen, curSong, state, quantBroke, hpMax;
+
 
     /*Start up SDL and create window*/
     if(!init()) printf("Failed to initialize!\n");
@@ -39,19 +40,21 @@ int main(int argc, char* args[])
         {
             /*Create NPC*/
             ball = createNPC(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 1, gBall,
-                             IMAGE_WIDTH, IMAGE_HEIGHT);
+                             IMAGE_WIDTH, IMAGE_HEIGHT, 0);
 
-            for(curH = 0; curH < 3; curH++)
+            for(hpMax = 2, curH = 0; curH < 3; curH++)
             {
               for(curW = 0; curW < 10; curW++)
               {
-                bars[curW + 10*curH] = createNPC(curW*80, curH*40, 0, 0, gBlock, 80, 40);
+                bars[curW + 10*curH] = createNPC(curW*80, curH*40, 0, 0, gBlock,
+                                                 80, 40, rand() % hpMax + 1);
+                printf("%d\n", bars[curW + 10*curH].hp);
               }
             }
 
             player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT -
                                PLAYER_HEIGHT - 2, 0, 0, gPlayer, PLAYER_WIDTH,
-                               PLAYER_HEIGHT);
+                               PLAYER_HEIGHT, 0);
 
             /*Main loop flag*/
             quit = false;
@@ -59,7 +62,6 @@ int main(int argc, char* args[])
             /*While application is running*/
             while(!quit)
             {
-
               Mix_FadeOutMusic(100);
               Mix_PlayMusic(gMenu, -1);
               curSong = 0;
@@ -82,7 +84,11 @@ int main(int argc, char* args[])
                           case SDLK_DOWN:
                             curScreen = SCREEN_GAME;
                             Mix_PlayChannel(-1, gGameBegin, 0);
-                            for(state = 0; state < 30; state++) bars[state].draw = true;
+                            for(state = 0; state < 30; state++)
+                            {
+                              bars[state].draw = true;
+                              bars[state].hp = (rand() % hpMax + 1);
+                            }
                             SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
                             break;
                         }
@@ -134,8 +140,6 @@ int main(int argc, char* args[])
                           break;
                       }
                   }
-                  SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-
                   checkcollideplayer(&ball, &player);
 
                   moveNPC(&ball);
@@ -149,6 +153,7 @@ int main(int argc, char* args[])
                   if(quantBroke == 30)
                   {
                     curScreen = SCREEN_MENU;
+                    hpMax++;
                     SDL_SetRenderDrawColor(gRenderer, 0x0A, 0x0A, 0x0A, 0xFF);
                     break;
                   }
@@ -172,13 +177,13 @@ int main(int argc, char* args[])
                     printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
                     quit = true;
                   }
-                  for (curW = 0; curW < 30; curW++)
+                  for (state = 0; state < 30; state++)
                   {
-                    if(bars[curW].draw != 0)
+                    if(bars[state].draw != 0)
                     {
-                      dstBarsRect.x = bars[curW].posX; dstBarsRect.y = bars[curW].posY;
-                      dstBarsRect.w = bars[curW].imgW; dstBarsRect.h = bars[curW].imgH;
-                      if(SDL_RenderCopy(gRenderer, bars[curW].image, NULL, &dstBarsRect) < 0)
+                      dstBarsRect.x = bars[state].posX; dstBarsRect.y = bars[state].posY;
+                      dstBarsRect.w = bars[state].imgW; dstBarsRect.h = bars[state].imgH;
+                      if(SDL_RenderCopy(gRenderer, bars[state].image, NULL, &dstBarsRect) < 0)
                       {
                         printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
                         quit = true;

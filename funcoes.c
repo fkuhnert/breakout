@@ -63,8 +63,9 @@ void movePlayer(NPC *p){
 }
 
 /*Create NPC*/
-NPC createNPC( int posX, int posY, int stepX, int stepY,
-               SDL_Texture *image, int imgW, int imgH) {
+NPC createNPC(int posX, int posY, int stepX, int stepY, SDL_Texture *image,
+              int imgW, int imgH, int hp)
+{
     NPC p;
     p.posX = posX;
     p.posY = posY;
@@ -73,6 +74,7 @@ NPC createNPC( int posX, int posY, int stepX, int stepY,
     p.imgW = imgW;
     p.imgH = imgH;
     p.image = image;
+    p.hp = hp;
     p.draw = true;
     return p;
 }
@@ -249,6 +251,19 @@ SDL_Texture* loadTexture( char *path )
     return newTexture;
 }
 
+int hitNPC(NPC *object, int op, int vel)
+{
+    if(object->hp == 1)
+    {
+      object->hp -= 1;
+      object->draw = false;
+    }
+    else object->hp -= 1;
+    Mix_PlayChannel( -1, gBlockHit, 0 );
+    if(op <= vel) return 1;
+    else return 4;
+}
+
 int collisionNPC(NPC *object, NPC *circle)
 {
   int op;
@@ -260,18 +275,7 @@ int collisionNPC(NPC *object, NPC *circle)
   {
     op = circle->posX + IMAGE_WIDTH - 5 - object->posX;
     op = op < 0 ? -op : op;
-    if(op <= vel)
-    {
-      object->draw = false;
-      Mix_PlayChannel( -1, gBlockHit, 0 );
-      return 1;
-    }
-    else
-    {
-      object->draw = false;
-      Mix_PlayChannel( -1, gBlockHit, 0 );
-      return 4;
-    }
+    return hitNPC(object, op, vel);
   }
   else if(circle->posX + 5 >= object->posX && circle->posX + 5 <= object->posX + 80
     && circle->posY + 5 <= object->posY + 40
@@ -279,18 +283,7 @@ int collisionNPC(NPC *object, NPC *circle)
   {
     op = circle->posX + 5 - (object->posX + 80);
     op = op < 0 ? -op : op;
-    if(op <= vel)
-    {
-      object->draw = false;
-      Mix_PlayChannel( -1, gBlockHit, 0 );
-      return 1;
-    }
-    else
-    {
-      object->draw = false;
-      Mix_PlayChannel( -1, gBlockHit, 0 );
-      return 4;
-    }
+    return hitNPC(object, op, vel);
   }
   return 0;
 }
