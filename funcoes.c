@@ -33,6 +33,8 @@ void moveNPC(NPC *p) {
         p->hp = p->hp - 1 < 0 ? 0 : p->hp - 1;
         p->posX = INIT_WIDTH;
         p->posY = INIT_HEIGHT;
+        p->stepY = 1;
+        p->stepX = 0;
         printf("%d\n", p->hp);
     }
     else if (p->posY < 0)
