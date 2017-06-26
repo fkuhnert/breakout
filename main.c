@@ -5,8 +5,6 @@
 
     Modificado por:
     *       Adriano Cruz (2017-1)
-
-
 */
 
 #include <stdio.h>
@@ -27,8 +25,10 @@
 int main(int argc, char* args[])
 {
     SDL_Rect dstRect, dstBarsRect, dstPlayerRect;
-    int quit, curH, curW, curScreen, curSong, state, quantBroke, hpMax;
-
+    int quit, curH, curW, curScreen, curSong, state, quantBroke;
+    int score = 0;
+    int hpMax = 2;
+    int hpPlayer = 3;
     /*Start up SDL and create window*/
     if(!init()) printf("Failed to initialize!\n");
     else
@@ -37,20 +37,17 @@ int main(int argc, char* args[])
         if(!loadMedia()) printf("Failed to load media!\n");
         else
         {
-            /*Create NPC*/
-            ball = createNPC(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 1, gBall,
-                             IMAGE_WIDTH, IMAGE_HEIGHT, 0);
+            ball = createNPC(INIT_WIDTH, INIT_HEIGHT, 0, 1, gBall,
+                             IMAGE_WIDTH, IMAGE_HEIGHT, hpPlayer);
 
-            for(hpMax = 2, curH = 0; curH < 3; curH++)
+            for(curH = 0; curH < 3; curH++)
             {
               for(curW = 0; curW < 10; curW++)
               {
                 bars[curW + 10*curH] = createNPC(curW*80, curH*40, 0, 0, gBlock,
-                                                 80, 40, rand() % hpMax + 1);
-                printf("%d\n", bars[curW + 10*curH].hp);
+                                                 80, 40, 0);
               }
             }
-
             player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT -
                                PLAYER_HEIGHT - 2, 0, 0, gPlayer, PLAYER_WIDTH,
                                PLAYER_HEIGHT, 0);
@@ -64,7 +61,6 @@ int main(int argc, char* args[])
               Mix_FadeOutMusic(100);
               Mix_PlayMusic(gMenu, -1);
               curSong = 0;
-
                 while(curScreen == SCREEN_MENU && !quit)
                 {
                   while( SDL_PollEvent( &e ) != 0 )
@@ -85,7 +81,6 @@ int main(int argc, char* args[])
                             Mix_PlayChannel(-1, gGameBegin, 0);
                             for(state = 0; state < 30; state++)
                             {
-                              bars[state].draw = true;
                               bars[state].hp = (rand() % hpMax + 1);
                             }
                             SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -146,12 +141,13 @@ int main(int argc, char* args[])
 
                   for(state = 0, curH = 0, quantBroke = 0; curH < 30; curH++)
                   {
-                    if(bars[curH].draw != false) state += collisionNPC(&bars[curH], &ball);
+                    if(bars[curH].hp > 0) state += collisionNPC(&bars[curH], &ball, &score);
                     else quantBroke++;
                   }
                   if(quantBroke == 30)
                   {
                     curScreen = SCREEN_MENU;
+                    score += 1000;
                     hpMax++;
                     SDL_SetRenderDrawColor(gRenderer, 0x0A, 0x0A, 0x0A, 0xFF);
                     break;
@@ -178,7 +174,7 @@ int main(int argc, char* args[])
                   }
                   for (state = 0; state < 30; state++)
                   {
-                    if(bars[state].draw != 0)
+                    if(bars[state].hp > 0)
                     {
                       dstBarsRect.x = bars[state].posX; dstBarsRect.y = bars[state].posY;
                       dstBarsRect.w = bars[state].imgW; dstBarsRect.h = bars[state].imgH;

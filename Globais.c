@@ -28,6 +28,10 @@ const int IMAGE_HEIGHT = 31;
 const int PLAYER_WIDTH = 160;
 const int PLAYER_HEIGHT = 30;
 
+/*Posicao inicial da bola*/
+const int INIT_WIDTH = 384;
+const int INIT_HEIGHT = 284;
+
 /*Event handler*/
 SDL_Event e;
 

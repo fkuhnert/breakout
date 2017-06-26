@@ -21,16 +21,25 @@
 void moveNPC(NPC *p) {
     p->posX += p->stepX;
     p->posY += p->stepY;
-    if ( (p->posX + IMAGE_WIDTH > SCREEN_WIDTH) || (p->posX < 0) ) {
+    if ((p->posX + IMAGE_WIDTH > SCREEN_WIDTH) || (p->posX < 0))
+    {
         Mix_PlayChannel( -1, gWall, 0 );
         p->stepX = -p->stepX;
         p->posX += p->stepX;
     }
-    if ( (p->posY + IMAGE_HEIGHT > SCREEN_HEIGHT) || (p->posY < 0) ) {
-        if (p->posY + IMAGE_HEIGHT > SCREEN_HEIGHT) Mix_PlayChannel(-1, gBottom, 0);
-        else Mix_PlayChannel( -1, gTop, 0 );
-        p->stepY = -p->stepY;
-        p->posY += p->stepY;
+    if (p->posY + IMAGE_HEIGHT > SCREEN_HEIGHT)
+    {
+        Mix_PlayChannel(-1, gBottom, 0);
+        p->hp = p->hp - 1 < 0 ? 0 : p->hp - 1;
+        p->posX = INIT_WIDTH;
+        p->posY = INIT_HEIGHT;
+        printf("%d\n", p->hp);
+    }
+    else if (p->posY < 0)
+    {
+      Mix_PlayChannel( -1, gTop, 0 );
+      p->stepY = -p->stepY;
+      p->posY += p->stepY;
     }
 }
 
@@ -75,7 +84,6 @@ NPC createNPC(int posX, int posY, int stepX, int stepY, SDL_Texture *image,
     p.imgH = imgH;
     p.image = image;
     p.hp = hp;
-    p.draw = true;
     return p;
 }
 
@@ -253,19 +261,14 @@ SDL_Texture* loadTexture( char *path )
 
 int hitNPC(NPC *object, int op, int vel)
 {
-    if(object->hp == 1)
-    {
-      object->hp -= 1;
-      object->draw = false;
-    }
-    else object->hp -= 1;
+    object->hp = object->hp <= 1 ? 0 : object->hp - 1;
     Mix_PlayChannel( -1, gBlockHit, 0 );
     op = op < 0 ? -op : op;
     if(op <= vel) return 1;
     else return 4;
 }
 
-int collisionNPC(NPC *object, NPC *circle)
+int collisionNPC(NPC *object, NPC *circle, int *score)
 {
   int op;
   int vel = circle->stepX;
@@ -275,6 +278,7 @@ int collisionNPC(NPC *object, NPC *circle)
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
     op = circle->posX + IMAGE_WIDTH - 5 - object->posX;
+    *score += 100;
     return hitNPC(object, op, vel);
   }
   else if(circle->posX + 5 >= object->posX && circle->posX + 5 <= object->posX + 80
@@ -282,6 +286,7 @@ int collisionNPC(NPC *object, NPC *circle)
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
     op = circle->posX + 5 - (object->posX + 80);
+    *score += 100;
     return hitNPC(object, op, vel);
   }
   return 0;

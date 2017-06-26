@@ -41,6 +41,9 @@ extern const int IMAGE_HEIGHT;
 extern const int PLAYER_WIDTH;
 extern const int PLAYER_HEIGHT;
 
+extern const int INIT_WIDTH;
+extern const int INIT_HEIGHT;
+
 extern SDL_Event e;
 
 #endif

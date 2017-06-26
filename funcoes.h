@@ -22,21 +22,20 @@ bool loadMedia();
 void closing();
 
 /*Loads individual image*/
-SDL_Texture* loadTexture( char *path );
+SDL_Texture* loadTexture(char *);
 
 /*Create NPC*/
-NPC createNPC(int posX, int posY, int stepX, int stepY, SDL_Texture *image,
-              int imgW, int imgH, int hp);
+NPC createNPC(int, int, int, int, SDL_Texture *, int, int, int);
 
 /*Move NPC*/
-void moveNPC(NPC *p);
+void moveNPC(NPC *);
 
-void movePlayer(NPC *p);
+void movePlayer(NPC *);
 
-void checkcollideplayer(NPC *circle, NPC *player);
+void checkcollideplayer(NPC *, NPC *);
 
-int collisionNPC(NPC *obj1, NPC *obj2);
+int collisionNPC(NPC *, NPC *, int *);
 
-void checkspeed(NPC *p);
+void checkspeed(NPC *);
 
 #endif
