@@ -113,7 +113,7 @@ bool init() {
             gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
             if(gRenderer == NULL)
             {
-                printf("SDL_Renderer nao foi inicializado. SDL_Renderer: %s\n", SDL_GetError);
+                printf("SDL_Renderer nao foi inicializado. SDL_Renderer: %s\n", SDL_GetError());
                 success = false;
             }
             else SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
@@ -294,11 +294,14 @@ int collisionNPC(NPC *object, NPC *circle, int *score)
   return 0;
 }
 
-void newlevel(NPC *bars, NPC *circle, NPC *p){
+void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax){
   int scan;
   for (scan = 0; scan < 30; scan++){
-    bars[scan].draw = true;
+    bars[scan].hp = (rand() % hpMax + 1);
   }
-  *circle = createNPC(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 1, gJPGSurface);
-  *p = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT - PLAYER_HEIGHT - 2, 0, 0, gPlayer);
+  circle->posX = INIT_WIDTH; circle->posY = INIT_HEIGHT;
+  circle->stepX = 0; circle->stepY = 1;
+
+  p->posX = SCREEN_WIDTH/2 - PLAYER_WIDTH/2; p->posY = SCREEN_HEIGHT - PLAYER_HEIGHT - 2;
+  p->stepX = 0;
 }

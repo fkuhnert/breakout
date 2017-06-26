@@ -26,10 +26,10 @@ int main(int argc, char* args[])
 {
     SDL_Rect dstRect, dstBarsRect, dstPlayerRect;
     int quit, curH, curW, curScreen, curSong, state, quantBroke, score;
-    int score = 0;
     int hpMax = 2;
     int hpPlayer = 3;
     /*Start up SDL and create window*/
+    score = 0;
     if(!init()) printf("Failed to initialize!\n");
     else
     {
@@ -52,7 +52,6 @@ int main(int argc, char* args[])
                                PLAYER_HEIGHT - 2, 0, 0, gPlayer, PLAYER_WIDTH,
                                PLAYER_HEIGHT, 0);
 
-            player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT - PLAYER_HEIGHT - 2, 0, 0, gPlayer);
             curSong = 10;
 
             /*Main loop flag*/
@@ -72,26 +71,21 @@ int main(int argc, char* args[])
                 {
                   switch (e.type)
                   {
-                    switch (e.type)
-                    {
-                      case SDL_QUIT:
-                        quit = true;
-                        break;
-                      case SDL_KEYDOWN:
-                        switch (e.key.keysym.sym)
-                        {
-                          case SDLK_ESCAPE:
-                            quit = true;
-                            break;
-                          case SDLK_DOWN:
-                            curScreen = SCREEN_GAME;
-                            Mix_PlayChannel(-1, gGameBegin, 0);
-                            for(state = 0; state < 30; state++)
-                            {
-                              bars[state].hp = (rand() % hpMax + 1);
-                            }
-                            SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
-                            break;
+                    case SDL_QUIT:
+                      quit = true;
+                      break;
+                    case SDL_KEYDOWN:
+                      switch (e.key.keysym.sym)
+                      {
+                        case SDLK_ESCAPE:
+                          quit = true;
+                          break;
+                        case SDLK_DOWN:
+                          curScreen = SCREEN_GAME;
+                          Mix_PlayChannel(-1, gGameBegin, 0);
+                          newlevel(bars, &ball, &player, hpMax);
+                          SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                          break;
                         }
                         break;
                      }
@@ -153,10 +147,9 @@ int main(int argc, char* args[])
                   }
                   if(quantBroke == 30)
                   {
-                    curScreen = SCREEN_MENU;
                     score += 1000;
                     hpMax++;
-                    SDL_SetRenderDrawColor(gRenderer, 0x0A, 0x0A, 0x0A, 0xFF);
+                    newlevel(bars, &ball, &player, hpMax);
                     break;
                   }
                   if(state == 1 || state == 2) ball.stepX = -ball.stepX;
@@ -196,12 +189,11 @@ int main(int argc, char* args[])
                   /*Update the surface*/
                   SDL_RenderPresent(gRenderer);
                   /* Not so good solution, depends on your computer*/
-                  SDL_Delay(1);
+                  SDL_Delay(5);
                   }
                 }
               }
             }
-    /*Free resources and closing SDL*/
-    closing();
-    return 0;
+  closing();
+  return 0;
 }

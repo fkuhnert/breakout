@@ -40,4 +40,4 @@ void checkspeed(NPC *);
 
 #endif
 
-void newlevel(NPC *bars, NPC *circle, NPC *p);
+void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax);
