@@ -13,31 +13,31 @@
 #include "NPC.h"
 
 /*Starts up SDL and creates window*/
-int init();
+bool init();
 
 /*Loads media*/
-int loadMedia();
+bool loadMedia();
 
 /*Frees media and shuts down SDL*/
 void closing();
 
 /*Loads individual image*/
-SDL_Surface* loadSurface( char *path );
+SDL_Texture* loadTexture(char *);
 
 /*Create NPC*/
-NPC createNPC( int posX, int posY, int stepX, int stepY, SDL_Surface *image);
+NPC createNPC(int, int, int, int, SDL_Texture *, int, int, int);
 
 /*Move NPC*/
-void moveNPC(NPC *p);
+void moveNPC(NPC *);
 
-void movePlayer(NPC *p);
+void movePlayer(NPC *);
 
-void checkcollideplayer(NPC *circle, NPC *player);
+void checkcollideplayer(NPC *, NPC *);
+
+int collisionNPC(NPC *, NPC *, int *);
+
+void checkspeed(NPC *);
 
 #endif
-
-int collisionNPC(NPC *obj1, NPC *obj2);
-
-void checkspeed(NPC *p);
 
 void newlevel(NPC *bars, NPC *circle, NPC *p);

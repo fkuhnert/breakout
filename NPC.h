@@ -6,10 +6,10 @@ typedef struct _NPC {
     int posY;
     int stepX;
     int stepY;
-    SDL_Surface* image;
     int imgW;
     int imgH;
-    bool draw;
+    SDL_Texture* image;
+    int hp;
 } NPC;
 
 extern NPC ball;

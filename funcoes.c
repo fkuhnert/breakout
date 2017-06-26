@@ -21,16 +21,27 @@
 void moveNPC(NPC *p) {
     p->posX += p->stepX;
     p->posY += p->stepY;
-    if ( (p->posX + IMAGE_WIDTH > SCREEN_WIDTH) || (p->posX < 0) ) {
+    if ((p->posX + IMAGE_WIDTH > SCREEN_WIDTH) || (p->posX < 0))
+    {
         Mix_PlayChannel( -1, gWall, 0 );
         p->stepX = -p->stepX;
         p->posX += p->stepX;
     }
-    if ( (p->posY + IMAGE_HEIGHT > SCREEN_HEIGHT) || (p->posY < 0) ) {
-        if (p->posY + IMAGE_HEIGHT > SCREEN_HEIGHT) Mix_PlayChannel(-1, gBottom, 0);
-        else Mix_PlayChannel( -1, gTop, 0 );
-        p->stepY = -p->stepY;
-        p->posY += p->stepY;
+    if (p->posY + IMAGE_HEIGHT > SCREEN_HEIGHT)
+    {
+        Mix_PlayChannel(-1, gBottom, 0);
+        p->hp = p->hp - 1 < 0 ? 0 : p->hp - 1;
+        p->posX = INIT_WIDTH;
+        p->posY = INIT_HEIGHT;
+        p->stepY = 1;
+        p->stepX = 0;
+        printf("%d\n", p->hp);
+    }
+    else if (p->posY < 0)
+    {
+      Mix_PlayChannel( -1, gTop, 0 );
+      p->stepY = -p->stepY;
+      p->posY += p->stepY;
     }
 }
 
@@ -63,21 +74,26 @@ void movePlayer(NPC *p){
 }
 
 /*Create NPC*/
-NPC createNPC( int posX, int posY, int stepX, int stepY,
-               SDL_Surface *image) {
+NPC createNPC(int posX, int posY, int stepX, int stepY, SDL_Texture *image,
+              int imgW, int imgH, int hp)
+{
     NPC p;
     p.posX = posX;
     p.posY = posY;
     p.stepX = stepX;
     p.stepY = stepY;
+    p.imgW = imgW;
+    p.imgH = imgH;
     p.image = image;
+    p.hp = hp;
     return p;
 }
 
-int init() {
+bool init() {
     /*Initialization flag*/
-    int success = true;
+    bool success = true;
 
+    /*Sets the rand seed to the current time*/
     srand(time(NULL));
 
     /*Initialize SDL*/
@@ -94,40 +110,42 @@ int init() {
         }
         else
         {
+            gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+            if(gRenderer == NULL)
+            {
+                printf("SDL_Renderer nao foi inicializado. SDL_Renderer: %s\n", SDL_GetError);
+                success = false;
+            }
+            else SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
             /*Initialize JPG and PNG loading */
             int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
-            if( !( IMG_Init( imgFlags ) & imgFlags ) ) {
+            if( !( IMG_Init( imgFlags ) & imgFlags ) )
+            {
                 printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
                 success = false;
             }
-            else {
-                /*Get window surface*/
-                gScreenSurface = SDL_GetWindowSurface( gWindow );
+            if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+            {
+                printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+                success = false;
             }
         }
-        if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 ){
-            printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
-            success = false;
-        }
     }
-
-
-
     return success;
 }
 
-int loadMedia() {
+bool loadMedia() {
     /*Loading success flag*/
-    int success = true;
-    /*uint32_t colorKey;*/
+    bool success = true;
 
     /*Load PNG surface*/
-    gJPGSurface = loadSurface( "./assets/images/circle.png" );
-    gBlock = loadSurface("./assets/images/block.png");
-    gPlayer = loadSurface("./assets/images/player.png");
-    colorkey = SDL_MapRGB (gJPGSurface -> format, 0xFF, 0xFF, 0xFF);
-    SDL_SetColorKey(gJPGSurface, SDL_TRUE, colorkey);
-    if( gJPGSurface == NULL || gBlock == NULL || gPlayer == NULL) {
+    gBall = loadTexture( "./assets/images/circle.png" );
+    gBlock = loadTexture("./assets/images/block.png");
+    gPlayer = loadTexture("./assets/images/player.png");
+
+    /*Loads audio files*/
+    if( gBall == NULL || gBlock == NULL || gPlayer == NULL) {
         printf( "Failed to load image! SDL Error: %s\n", SDL_GetError() );
         success = false;
     }
@@ -181,9 +199,11 @@ int loadMedia() {
 
 void closing() {
     /*Free loaded image*/
-    SDL_FreeSurface( gJPGSurface );
-    gJPGSurface = NULL;
-    SDL_FreeSurface( gBlock );
+    SDL_DestroyTexture( gBall );
+    SDL_DestroyTexture( gBlock );
+    SDL_DestroyTexture( gPlayer );
+    gBall = NULL;
+    gPlayer = NULL;
     gBlock = NULL;
 
     /*Destroy window*/
@@ -216,31 +236,41 @@ void closing() {
     SDL_Quit();
 }
 
-SDL_Surface* loadSurface( char *path )
+SDL_Texture* loadTexture( char *path )
 {
     /*The final optimized image*/
-    SDL_Surface* optimizedSurface = NULL;
+    SDL_Texture* newTexture = NULL;
 
     /*Load image at specified path*/
     SDL_Surface* loadedSurface = IMG_Load( path );
     if( loadedSurface == NULL ) {
         printf( "Unable to load image %s! SDL_image Error: %s\n", path, IMG_GetError() );
     }
-    else {
+    else
+    {
+        colorkey = SDL_MapRGB (loadedSurface->format, 0xFF, 0xFF, 0xFF);
+        SDL_SetColorKey(loadedSurface, SDL_TRUE, colorkey);
         /*Convert surface to screen format*/
-        optimizedSurface = SDL_ConvertSurface( loadedSurface, gScreenSurface->format, 0 );
-        if( optimizedSurface == NULL ) {
-            printf( "Unable to optimize image %s! SDL Error: %s\n", path, SDL_GetError() );
+        newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+        if( newTexture == NULL ) {
+            printf( "Nao foi possivel criar a textura de %s! Erro: %s\n", path, SDL_GetError() );
         }
-
         /*Get rid of old loaded surface*/
-        SDL_FreeSurface( loadedSurface );
+        SDL_FreeSurface(loadedSurface);
     }
-
-    return optimizedSurface;
+    return newTexture;
 }
 
-int collisionNPC(NPC *object, NPC *circle)
+int hitNPC(NPC *object, int op, int vel)
+{
+    object->hp = object->hp <= 1 ? 0 : object->hp - 1;
+    Mix_PlayChannel( -1, gBlockHit, 0 );
+    op = op < 0 ? -op : op;
+    if(op <= vel) return 1;
+    else return 4;
+}
+
+int collisionNPC(NPC *object, NPC *circle, int *score)
 {
   int op;
   int vel = circle->stepX;
@@ -250,38 +280,16 @@ int collisionNPC(NPC *object, NPC *circle)
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
     op = circle->posX + IMAGE_WIDTH - 5 - object->posX;
-    op = op < 0 ? -op : op;
-    if(op <= vel)
-    {
-      object->draw = false;
-      Mix_PlayChannel( -1, gBlockHit, 0 );
-      return 1;
-    }
-    else
-    {
-      object->draw = false;
-      Mix_PlayChannel( -1, gBlockHit, 0 );
-      return 4;
-    }
+    *score += 100;
+    return hitNPC(object, op, vel);
   }
   else if(circle->posX + 5 >= object->posX && circle->posX + 5 <= object->posX + 80
     && circle->posY + 5 <= object->posY + 40
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
     op = circle->posX + 5 - (object->posX + 80);
-    op = op < 0 ? -op : op;
-    if(op <= vel)
-    {
-      object->draw = false;
-      Mix_PlayChannel( -1, gBlockHit, 0 );
-      return 1;
-    }
-    else
-    {
-      object->draw = false;
-      Mix_PlayChannel( -1, gBlockHit, 0 );
-      return 4;
-    }
+    *score += 100;
+    return hitNPC(object, op, vel);
   }
   return 0;
 }
