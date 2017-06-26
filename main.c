@@ -14,6 +14,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
@@ -51,7 +52,7 @@ int main( int argc, char* args[] ) {
               }
             }
 
-            player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT - PLAYER_HEIGHT, 0, 0, gPlayer);
+            player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT - PLAYER_HEIGHT - 2, 0, 0, gPlayer);
 
             /*Main loop flag*/
             quit = false;

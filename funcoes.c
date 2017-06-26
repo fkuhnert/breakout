@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
+#include <math.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
@@ -34,21 +35,32 @@ void moveNPC(NPC *p) {
 }
 
 void checkcollideplayer(NPC *circle, NPC *p){
-  float dist;
-  if (circle->posY + IMAGE_HEIGHT == p->posY && ((circle->posX + IMAGE_WIDTH > p->posX && circle->posX + IMAGE_WIDTH < p->posX + PLAYER_WIDTH) ||
+  float dist, coeff;
+  if (circle->posY + circle->stepY + IMAGE_HEIGHT > p->posY && ((circle->posX + IMAGE_WIDTH > p->posX && circle->posX + IMAGE_WIDTH < p->posX + PLAYER_WIDTH) ||
       (circle->posX > p->posX && circle->posX < p->posX + PLAYER_WIDTH))){
-        circle->stepY = -circle->stepY;
         Mix_PlayChannel(-1, gBottom, 0);
         dist = (circle->posX + IMAGE_WIDTH/2) - (p->posX + PLAYER_WIDTH/2);
-        circle->stepX += dist/15;
-        circle->stepX += p->stepX/2;
-        if (circle->stepX > 4){
-          circle->stepX = 4;
+        coeff = dist/20;
+        if (dist < 0){
+          if (circle->stepX < 0) circle->stepX *= coeff;
+          else if (circle->stepX > 0) circle->stepX /= coeff;
         }
-        if (circle->stepX < -4){
-          circle ->stepX = -4;
+        else if (dist > 0){
+          if (circle->stepX < 0) circle->stepX /= coeff;
+          else if (circle->stepX > 0) circle->stepX *= coeff;
         }
+        circle->stepX += coeff;
+        if (circle->stepX > 4) circle->stepX = 4;
+        else if (circle->stepX < -4) circle->stepX = -4;
+        checkspeed(circle);
+        circle->stepY = -circle->stepY;
+        circle->posY += circle->stepY;
       }
+}
+
+void checkspeed(NPC *circle){
+  circle->stepY = 3-abs(circle->stepX);
+  if (circle->stepY <= 0) circle->stepY = 1;
 }
 
 void movePlayer(NPC *p){
@@ -120,7 +132,7 @@ int loadMedia() {
     /*Load PNG surface*/
     gJPGSurface = loadSurface( "./circle.png" );
     gBlock = loadSurface("./block.png");
-    gPlayer = loadSurface("./block.png");
+    gPlayer = loadSurface("./player.png");
     colorkey = SDL_MapRGB (gJPGSurface -> format, 0xFF, 0xFF, 0xFF);
     SDL_SetColorKey(gJPGSurface, SDL_TRUE, colorkey);
     if( gJPGSurface == NULL || gBlock == NULL || gPlayer == NULL) {
