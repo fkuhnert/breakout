@@ -78,6 +78,7 @@ int main(int argc, char* args[])
                           case SDLK_DOWN:
                             curScreen = SCREEN_GAME;
                             Mix_PlayChannel(-1, gGameBegin, 0);
+                            for(state = 0; state < 30; state++) bars[state].draw = true;
                             break;
                         }
                         break;
@@ -170,26 +171,26 @@ int main(int argc, char* args[])
                   dstPlayerRect.x = player.posX;
                   dstPlayerRect.y = player.posY;
 
-                dstRect.x = ball.posX;
-                dstRect.y = ball.posY;
+                  dstRect.x = ball.posX;
+                  dstRect.y = ball.posY;
 
-                dstPlayerRect.x = player.posX;
-                dstPlayerRect.y = player.posY;
+                  dstPlayerRect.x = player.posX;
+                  dstPlayerRect.y = player.posY;
 
-                if( SDL_BlitSurface( ball.image, &srcRect, gScreenSurface, &dstRect ) < 0 )
-                {
-                  printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
-                  quit = true;
-                }
-                if( SDL_BlitSurface( player.image, &srcPlayerRect, gScreenSurface, &dstPlayerRect) < 0 )
-                {
-                  printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
-                  quit = true;
-                }
-                else{
+                  if( SDL_BlitSurface( ball.image, &srcRect, gScreenSurface, &dstRect ) < 0 )
+                  {
+                    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                    quit = true;
+                  }
+                  if( SDL_BlitSurface( player.image, &srcPlayerRect, gScreenSurface, &dstPlayerRect) < 0 )
+                  {
+                    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                    quit = true;
+                  }
                   for (curW = 0; curW < 30; curW++)
                   {
-                    if(bars[curW].draw != 0){
+                    if(bars[curW].draw != 0)
+                    {
                       dstBarsRect.x = bars[curW].posX;
                       dstBarsRect.y = bars[curW].posY;
                       if(SDL_BlitSurface(bars[curW].image, &srcBarsRect, gScreenSurface, &dstBarsRect) < 0)
@@ -200,34 +201,15 @@ int main(int argc, char* args[])
                       }
                     }
                   }
-                  if( SDL_BlitSurface( player.image, &srcPlayerRect, gScreenSurface, &dstPlayerRect) < 0 )
-                  {
-                    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
-                    quit = true;
-                  }
-
-                  for (curW = 0; curW < 30; curW++)
-                  {
-                    dstBarsRect.x = bars[curW].posX;
-                    dstBarsRect.y = bars[curW].posY;
-                    if(SDL_BlitSurface(bars[curW].image, &srcBarsRect, gScreenSurface, &dstBarsRect) < 0)
-                    {
-                      printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
-                      quit = true;
-                      break;
-                    }
-                  }
                   /*Update the surface*/
                   SDL_UpdateWindowSurface(gWindow);
-
                   /* Not so good solution, depends on your computer*/
                   SDL_Delay(5);
+                  }
+                }
+              }
             }
-         }
-      }
-    }
     /*Free resources and closing SDL*/
     closing();
     return 0;
-  }
 }

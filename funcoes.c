@@ -261,16 +261,12 @@ int collisionNPC(NPC *object, NPC *circle)
     if(op <= vel)
     {
       object->draw = false;
-      object->posX = SCREEN_WIDTH;
-      object->posY = SCREEN_HEIGHT;
       Mix_PlayChannel( -1, gBlockHit, 0 );
       return 1;
     }
     else
     {
       object->draw = false;
-      object->posX = SCREEN_WIDTH;
-      object->posY = SCREEN_HEIGHT;
       Mix_PlayChannel( -1, gBlockHit, 0 );
       return 4;
     }
@@ -284,16 +280,12 @@ int collisionNPC(NPC *object, NPC *circle)
     if(op <= vel)
     {
       object->draw = false;
-      object->posX = SCREEN_WIDTH;
-      object->posY = SCREEN_HEIGHT;
       Mix_PlayChannel( -1, gBlockHit, 0 );
       return 1;
     }
     else
     {
       object->draw = false;
-      object->posX = SCREEN_WIDTH;
-      object->posY = SCREEN_HEIGHT;
       Mix_PlayChannel( -1, gBlockHit, 0 );
       return 4;
     }
