@@ -8,25 +8,30 @@
 #ifndef GLOBAIS_H
 #define GLOBAIS_H
 
-/*The window we'll be rendering to*/
+extern const int SCREEN_MENU;
+extern const int SCREEN_GAME;
+
+extern SDL_Event e;
+
 extern SDL_Window* gWindow;
 
-/*The surface contained by the window*/
 extern SDL_Surface* gScreenSurface;
 
-/*Current displayed PNG image*/
 extern SDL_Surface* gJPGSurface;
 extern SDL_Surface* gBlock;
 extern SDL_Surface* gPlayer;
 
-/* Audio for game */
 extern Mix_Chunk *gBottom;
 extern Mix_Chunk *gTop;
 extern Mix_Chunk *gWall;
+extern Mix_Chunk *gBlockHit;
+extern Mix_Chunk *gGameBegin;
 extern Mix_Music *gMenu;
 extern Mix_Music *gFase1;
 extern Mix_Music *gFase2;
 extern Mix_Music *gFase3;
+
+extern TTF_Font *gFont;
 
 extern uint32_t colorkey;
 
