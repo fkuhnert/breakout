@@ -29,7 +29,6 @@ int main(int argc, char* args[])
     SDL_Rect dstRect, dstBarsRect, dstPlayerRect;
     int quit, curH, curW, curScreen, curSong, state, quantBroke, hpMax;
 
-
     /*Start up SDL and create window*/
     if(!init()) printf("Failed to initialize!\n");
     else

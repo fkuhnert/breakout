@@ -260,6 +260,7 @@ int hitNPC(NPC *object, int op, int vel)
     }
     else object->hp -= 1;
     Mix_PlayChannel( -1, gBlockHit, 0 );
+    op = op < 0 ? -op : op;
     if(op <= vel) return 1;
     else return 4;
 }
@@ -274,7 +275,6 @@ int collisionNPC(NPC *object, NPC *circle)
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
     op = circle->posX + IMAGE_WIDTH - 5 - object->posX;
-    op = op < 0 ? -op : op;
     return hitNPC(object, op, vel);
   }
   else if(circle->posX + 5 >= object->posX && circle->posX + 5 <= object->posX + 80
@@ -282,7 +282,6 @@ int collisionNPC(NPC *object, NPC *circle)
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
     op = circle->posX + 5 - (object->posX + 80);
-    op = op < 0 ? -op : op;
     return hitNPC(object, op, vel);
   }
   return 0;
