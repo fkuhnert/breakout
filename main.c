@@ -27,7 +27,7 @@
 int main(int argc, char* args[])
 {
     SDL_Rect srcRect, dstRect, srcBarsRect, dstBarsRect, srcPlayerRect, dstPlayerRect;
-    int quit, curH, curW, curScreen, curSong, state, quantBroke;
+    int quit, curH, curW, curScreen, curSong, state, quantBroke, score;
 
     /*Start up SDL and create window*/
     if(!init()) printf("Failed to initialize!\n");
@@ -49,6 +49,7 @@ int main(int argc, char* args[])
             }
 
             player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT - PLAYER_HEIGHT - 2, 0, 0, gPlayer);
+            curSong = 10;
 
             /*Main loop flag*/
             quit = false;
@@ -56,50 +57,50 @@ int main(int argc, char* args[])
             /*While application is running*/
             while(!quit)
             {
-
-              Mix_FadeOutMusic(100);
-              Mix_PlayMusic(gMenu, -1);
-              curSong = 0;
-
-                while(curScreen == SCREEN_MENU && !quit)
+              while(curScreen == SCREEN_MENU && !quit)
+              {
+                if (curSong != 0){
+                  Mix_FadeOutMusic(100);
+                  Mix_PlayMusic(gMenu, -1);
+                  curSong = 0;
+                }
+                while( SDL_PollEvent( &e ) != 0 )
                 {
-                  while( SDL_PollEvent( &e ) != 0 )
+                  switch (e.type)
                   {
-                    switch (e.type)
-                    {
-                      case SDL_QUIT:
-                        quit = true;
-                        break;
-                      case SDL_KEYDOWN:
-                        switch (e.key.keysym.sym)
-                        {
-                          case SDLK_ESCAPE:
-                            quit = true;
-                            break;
-                          case SDLK_DOWN:
-                            curScreen = SCREEN_GAME;
-                            Mix_PlayChannel(-1, gGameBegin, 0);
-                            for(state = 0; state < 30; state++) bars[state].draw = true;
-                            break;
-                        }
-                        break;
-                     }
+                    case SDL_QUIT:
+                      quit = true;
+                      break;
+                    case SDL_KEYDOWN:
+                      switch (e.key.keysym.sym)
+                      {
+                        case SDLK_ESCAPE:
+                          quit = true;
+                          break;
+                        case SDLK_DOWN:
+                          curScreen = SCREEN_GAME;
+                          Mix_PlayChannel(-1, gGameBegin, 0);
+                          for(state = 0; state < 30; state++) bars[state].draw = true;
+                          break;
+                      }
+                      break;
                    }
-                   SDL_FillRect(gScreenSurface, NULL,
-                                SDL_MapRGB(gScreenSurface->format,
-                                0x0A, 0x0A, 0x0A));
+                 }
+                 SDL_FillRect(gScreenSurface, NULL,
+                              SDL_MapRGB(gScreenSurface->format,
+                              0x0A, 0x0A, 0x0A));
 
-                   /*Update the surface*/
-                   SDL_UpdateWindowSurface(gWindow);
+                 /*Update the surface*/
+                 SDL_UpdateWindowSurface(gWindow);
 
-                   /* Not so good solution, depends on your computer*/
-                   SDL_Delay(5);
+                 /* Not so good solution, depends on your computer*/
+                 SDL_Delay(5);
                 }
                 while(curScreen == SCREEN_GAME && !quit)
                 {
                   if (curSong == 0){
                     Mix_FadeOutMusic(100);
-                    Mix_FadeInMusic(gFase1, 1, 100);
+                    Mix_FadeInMusic(gFase1, 10, 100);
                     curSong = 1;
                   }
                   while( SDL_PollEvent( &e ) != 0 )
@@ -149,11 +150,15 @@ int main(int argc, char* args[])
                   for(state = 0, curH = 0, quantBroke = 0; curH < 30; curH++)
                   {
                     if(bars[curH].draw != false) state += collisionNPC(&bars[curH], &ball);
-                    else quantBroke++;
+                    else {
+                      quantBroke++;
+                      score += 100;
+                    }
                   }
                   if(quantBroke == 30)
                   {
-                    curScreen = SCREEN_MENU;
+                    score += 1000;
+                    newlevel(&bars[0], &ball, &player);
                     break;
                   }
                   if(state == 1 || state == 2) ball.stepX = -ball.stepX;
@@ -210,7 +215,7 @@ int main(int argc, char* args[])
                   /*Update the surface*/
                   SDL_UpdateWindowSurface(gWindow);
                   /* Not so good solution, depends on your computer*/
-                  SDL_Delay(5);
+                  SDL_Delay(1);
                   }
                 }
               }

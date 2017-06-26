@@ -285,3 +285,12 @@ int collisionNPC(NPC *object, NPC *circle)
   }
   return 0;
 }
+
+void newlevel(NPC *bars, NPC *circle, NPC *p){
+  int scan;
+  for (scan = 0; scan < 30; scan++){
+    bars[scan].draw = true;
+  }
+  *circle = createNPC(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 1, gJPGSurface);
+  *p = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT - PLAYER_HEIGHT - 2, 0, 0, gPlayer);
+}
