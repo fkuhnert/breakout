@@ -87,12 +87,6 @@ int main(int argc, char* args[])
                                 SDL_MapRGB(gScreenSurface->format,
                                 0x0A, 0x0A, 0x0A));
 
-                   if(SDL_BlitSurface(ball.image, &srcRect, gScreenSurface, &dstRect) < 0)
-                   {
-                      printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
-                      quit = true;
-                   }
-
                    /*Update the surface*/
                    SDL_UpdateWindowSurface(gWindow);
 
