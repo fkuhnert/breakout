@@ -42,13 +42,13 @@ NPC player;
 /*Colokey for the objetcs*/
 uint32_t colorkey;
 
-/*The surface contained by the window*/
-SDL_Surface* gScreenSurface = NULL;
+/*Window renderer*/
+SDL_Renderer* gRenderer = NULL;
 
 /*Current displayed PNG image*/
-SDL_Surface* gJPGSurface = NULL;
-SDL_Surface* gBlock = NULL;
-SDL_Surface* gPlayer = NULL;
+SDL_Texture* gBall = NULL;
+SDL_Texture* gBlock = NULL;
+SDL_Texture* gPlayer = NULL;
 
 /* Audio for game */
 Mix_Chunk *gBottom = NULL;

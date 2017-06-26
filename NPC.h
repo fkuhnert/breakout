@@ -6,9 +6,9 @@ typedef struct _NPC {
     int posY;
     int stepX;
     int stepY;
-    SDL_Surface* image;
     int imgW;
     int imgH;
+    SDL_Texture* image;
     bool draw;
 } NPC;
 

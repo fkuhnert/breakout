@@ -14,12 +14,11 @@ extern const int SCREEN_GAME;
 extern SDL_Event e;
 
 extern SDL_Window* gWindow;
+extern SDL_Renderer* gRenderer;
 
-extern SDL_Surface* gScreenSurface;
-
-extern SDL_Surface* gJPGSurface;
-extern SDL_Surface* gBlock;
-extern SDL_Surface* gPlayer;
+extern SDL_Texture* gBall;
+extern SDL_Texture* gBlock;
+extern SDL_Texture* gPlayer;
 
 extern Mix_Chunk *gBottom;
 extern Mix_Chunk *gTop;

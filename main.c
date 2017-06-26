@@ -26,7 +26,7 @@
 
 int main(int argc, char* args[])
 {
-    SDL_Rect srcRect, dstRect, srcBarsRect, dstBarsRect, srcPlayerRect, dstPlayerRect;
+    SDL_Rect dstRect, dstBarsRect, dstPlayerRect;
     int quit, curH, curW, curScreen, curSong, state, quantBroke;
 
     /*Start up SDL and create window*/
@@ -38,17 +38,20 @@ int main(int argc, char* args[])
         else
         {
             /*Create NPC*/
-            ball = createNPC(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 1, gJPGSurface);
+            ball = createNPC(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 1, gBall,
+                             IMAGE_WIDTH, IMAGE_HEIGHT);
 
             for(curH = 0; curH < 3; curH++)
             {
               for(curW = 0; curW < 10; curW++)
               {
-                bars[curW + 10*curH] = createNPC(curW*80, curH*40, 0, 0, gBlock);
+                bars[curW + 10*curH] = createNPC(curW*80, curH*40, 0, 0, gBlock, 80, 40);
               }
             }
 
-            player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT - PLAYER_HEIGHT - 2, 0, 0, gPlayer);
+            player = createNPC(SCREEN_WIDTH/2 - PLAYER_WIDTH/2, SCREEN_HEIGHT -
+                               PLAYER_HEIGHT - 2, 0, 0, gPlayer, PLAYER_WIDTH,
+                               PLAYER_HEIGHT);
 
             /*Main loop flag*/
             quit = false;
@@ -80,19 +83,14 @@ int main(int argc, char* args[])
                             curScreen = SCREEN_GAME;
                             Mix_PlayChannel(-1, gGameBegin, 0);
                             for(state = 0; state < 30; state++) bars[state].draw = true;
+                            SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
                             break;
                         }
                         break;
                      }
                    }
-                   SDL_FillRect(gScreenSurface, NULL,
-                                SDL_MapRGB(gScreenSurface->format,
-                                0x0A, 0x0A, 0x0A));
-
-                   /*Update the surface*/
-                   SDL_UpdateWindowSurface(gWindow);
-
-                   /* Not so good solution, depends on your computer*/
+                   SDL_RenderClear(gRenderer);
+                   SDL_RenderPresent(gRenderer);
                    SDL_Delay(5);
                 }
                 while(curScreen == SCREEN_GAME && !quit)
@@ -136,10 +134,7 @@ int main(int argc, char* args[])
                           break;
                       }
                   }
-                  /*Fill the surface white*/
-                  SDL_FillRect(gScreenSurface, NULL,
-                                SDL_MapRGB(gScreenSurface->format,
-                                  0xFF, 0xFF, 0xFF ));
+                  SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
                   checkcollideplayer(&ball, &player);
 
@@ -154,41 +149,25 @@ int main(int argc, char* args[])
                   if(quantBroke == 30)
                   {
                     curScreen = SCREEN_MENU;
+                    SDL_SetRenderDrawColor(gRenderer, 0x0A, 0x0A, 0x0A, 0xFF);
                     break;
                   }
                   if(state == 1 || state == 2) ball.stepX = -ball.stepX;
                   else if (state == 4 || state == 5 || state == 8) ball.stepY = -ball.stepY;
 
-                  srcRect.x = 0; srcRect.y = 0;
-                  srcRect.w = IMAGE_WIDTH;
-                  srcRect.h = IMAGE_HEIGHT;
+                  dstRect.x = ball.posX; dstRect.y = ball.posY;
+                  dstRect.w = ball.imgW; dstRect.h = ball.imgH;
 
-                  srcBarsRect.x = 0; srcBarsRect.y = 0;
-                  srcBarsRect.w = 80;
-                  srcBarsRect.h = 40;
+                  dstPlayerRect.x = player.posX; dstPlayerRect.y = player.posY;
+                  dstPlayerRect.w = player.imgW; dstPlayerRect.h = player.imgH;
 
-                  srcPlayerRect.x = 0; srcPlayerRect.y = 0;
-                  srcPlayerRect.w = PLAYER_WIDTH;
-                  srcPlayerRect.h = PLAYER_HEIGHT;
-
-                  dstRect.x = ball.posX;
-                  dstRect.y = ball.posY;
-
-                  dstPlayerRect.x = player.posX;
-                  dstPlayerRect.y = player.posY;
-
-                  dstRect.x = ball.posX;
-                  dstRect.y = ball.posY;
-
-                  dstPlayerRect.x = player.posX;
-                  dstPlayerRect.y = player.posY;
-
-                  if( SDL_BlitSurface( ball.image, &srcRect, gScreenSurface, &dstRect ) < 0 )
+                  SDL_RenderClear(gRenderer);
+                  if( SDL_RenderCopy(gRenderer, ball.image, NULL, &dstRect ) < 0 )
                   {
                     printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
                     quit = true;
                   }
-                  if( SDL_BlitSurface( player.image, &srcPlayerRect, gScreenSurface, &dstPlayerRect) < 0 )
+                  if( SDL_RenderCopy(gRenderer, player.image, NULL, &dstPlayerRect) < 0 )
                   {
                     printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
                     quit = true;
@@ -197,9 +176,9 @@ int main(int argc, char* args[])
                   {
                     if(bars[curW].draw != 0)
                     {
-                      dstBarsRect.x = bars[curW].posX;
-                      dstBarsRect.y = bars[curW].posY;
-                      if(SDL_BlitSurface(bars[curW].image, &srcBarsRect, gScreenSurface, &dstBarsRect) < 0)
+                      dstBarsRect.x = bars[curW].posX; dstBarsRect.y = bars[curW].posY;
+                      dstBarsRect.w = bars[curW].imgW; dstBarsRect.h = bars[curW].imgH;
+                      if(SDL_RenderCopy(gRenderer, bars[curW].image, NULL, &dstBarsRect) < 0)
                       {
                         printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
                         quit = true;
@@ -208,7 +187,7 @@ int main(int argc, char* args[])
                     }
                   }
                   /*Update the surface*/
-                  SDL_UpdateWindowSurface(gWindow);
+                  SDL_RenderPresent(gRenderer);
                   /* Not so good solution, depends on your computer*/
                   SDL_Delay(5);
                   }

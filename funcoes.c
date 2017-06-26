@@ -64,20 +64,24 @@ void movePlayer(NPC *p){
 
 /*Create NPC*/
 NPC createNPC( int posX, int posY, int stepX, int stepY,
-               SDL_Surface *image) {
+               SDL_Texture *image, int imgW, int imgH) {
     NPC p;
     p.posX = posX;
     p.posY = posY;
     p.stepX = stepX;
     p.stepY = stepY;
+    p.imgW = imgW;
+    p.imgH = imgH;
     p.image = image;
+    p.draw = true;
     return p;
 }
 
-int init() {
+bool init() {
     /*Initialization flag*/
-    int success = true;
+    bool success = true;
 
+    /*Sets the rand seed to the current time*/
     srand(time(NULL));
 
     /*Initialize SDL*/
@@ -94,40 +98,42 @@ int init() {
         }
         else
         {
+            gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+            if(gRenderer == NULL)
+            {
+                printf("SDL_Renderer nao foi inicializado. SDL_Renderer: %s\n", SDL_GetError);
+                success = false;
+            }
+            else SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+
             /*Initialize JPG and PNG loading */
             int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
-            if( !( IMG_Init( imgFlags ) & imgFlags ) ) {
+            if( !( IMG_Init( imgFlags ) & imgFlags ) )
+            {
                 printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
                 success = false;
             }
-            else {
-                /*Get window surface*/
-                gScreenSurface = SDL_GetWindowSurface( gWindow );
+            if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+            {
+                printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+                success = false;
             }
         }
-        if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 ){
-            printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
-            success = false;
-        }
     }
-
-
-
     return success;
 }
 
-int loadMedia() {
+bool loadMedia() {
     /*Loading success flag*/
-    int success = true;
-    /*uint32_t colorKey;*/
+    bool success = true;
 
     /*Load PNG surface*/
-    gJPGSurface = loadSurface( "./assets/images/circle.png" );
-    gBlock = loadSurface("./assets/images/block.png");
-    gPlayer = loadSurface("./assets/images/player.png");
-    colorkey = SDL_MapRGB (gJPGSurface -> format, 0xFF, 0xFF, 0xFF);
-    SDL_SetColorKey(gJPGSurface, SDL_TRUE, colorkey);
-    if( gJPGSurface == NULL || gBlock == NULL || gPlayer == NULL) {
+    gBall = loadTexture( "./assets/images/circle.png" );
+    gBlock = loadTexture("./assets/images/block.png");
+    gPlayer = loadTexture("./assets/images/player.png");
+
+    /*Loads audio files*/
+    if( gBall == NULL || gBlock == NULL || gPlayer == NULL) {
         printf( "Failed to load image! SDL Error: %s\n", SDL_GetError() );
         success = false;
     }
@@ -181,9 +187,11 @@ int loadMedia() {
 
 void closing() {
     /*Free loaded image*/
-    SDL_FreeSurface( gJPGSurface );
-    gJPGSurface = NULL;
-    SDL_FreeSurface( gBlock );
+    SDL_DestroyTexture( gBall );
+    SDL_DestroyTexture( gBlock );
+    SDL_DestroyTexture( gPlayer );
+    gBall = NULL;
+    gPlayer = NULL;
     gBlock = NULL;
 
     /*Destroy window*/
@@ -216,28 +224,29 @@ void closing() {
     SDL_Quit();
 }
 
-SDL_Surface* loadSurface( char *path )
+SDL_Texture* loadTexture( char *path )
 {
     /*The final optimized image*/
-    SDL_Surface* optimizedSurface = NULL;
+    SDL_Texture* newTexture = NULL;
 
     /*Load image at specified path*/
     SDL_Surface* loadedSurface = IMG_Load( path );
     if( loadedSurface == NULL ) {
         printf( "Unable to load image %s! SDL_image Error: %s\n", path, IMG_GetError() );
     }
-    else {
+    else
+    {
+        colorkey = SDL_MapRGB (loadedSurface->format, 0xFF, 0xFF, 0xFF);
+        SDL_SetColorKey(loadedSurface, SDL_TRUE, colorkey);
         /*Convert surface to screen format*/
-        optimizedSurface = SDL_ConvertSurface( loadedSurface, gScreenSurface->format, 0 );
-        if( optimizedSurface == NULL ) {
-            printf( "Unable to optimize image %s! SDL Error: %s\n", path, SDL_GetError() );
+        newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+        if( newTexture == NULL ) {
+            printf( "Nao foi possivel criar a textura de %s! Erro: %s\n", path, SDL_GetError() );
         }
-
         /*Get rid of old loaded surface*/
-        SDL_FreeSurface( loadedSurface );
+        SDL_FreeSurface(loadedSurface);
     }
-
-    return optimizedSurface;
+    return newTexture;
 }
 
 int collisionNPC(NPC *object, NPC *circle)
