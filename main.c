@@ -38,11 +38,8 @@ int main(int argc, char* args[])
         else
         {
             /*Create NPC*/
-            ball = createNPC(rand() % (SCREEN_WIDTH - IMAGE_WIDTH),
-                             rand() % (SCREEN_HEIGHT - IMAGE_HEIGHT),
-                             rand() % 2 ? -1: 1,
-                             rand() % 2 ? -1: 1,
-                             gJPGSurface);
+            ball = createNPC(SCREEN_WIDTH/2, SCREEN_HEIGHT/2, 0, 1, gJPGSurface);
+
             for(curH = 0; curH < 3; curH++)
             {
               for(curW = 0; curW < 10; curW++)
