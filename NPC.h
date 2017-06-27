@@ -18,11 +18,14 @@ extern NPC player;
 
 extern NPC textStart;
 extern NPC textExit;
-extern NPC textHighscore;
-extern NPC textHighscores[10];
+extern NPC textHighscores;
+extern NPC textGrupo;
 extern NPC textLives;
+extern NPC textCurLives;
 extern NPC textScore;
+extern NPC textCurScore;
 extern NPC textMenu;
 extern NPC textResume;
+extern NPC textArrow;
 
 #endif

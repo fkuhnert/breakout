@@ -24,14 +24,15 @@
 
 int main(int argc, char* args[])
 {
-    SDL_Rect dstRect, dstBarsRect, dstPlayerRect, dstTextRect;
-    int quit, curH, curW, curScreen, curSong, state, quantBroke, score, time2, avgtime, frametime, curOption;
-    char nome[3];
+    SDL_Rect dstRect, dstBarsRect, dstPlayerRect;
+    int curH, curW, curScreen, curSong, state, quantBroke, score, time2, avgtime,
+        frametime, curOptionMenu, curOptionGame;
     int hpMax = 1;
     int hpPlayer = 3;
     int time1 = 0;
     int delay = 5;
     int loopNum = 0;
+    bool quit, returnGame;
     score = 0;
     if(!init()) printf("Failed to initialize!\n");
     else
@@ -40,8 +41,6 @@ int main(int argc, char* args[])
         if(!loadMedia()) printf("Failed to load media!\n");
         else
         {
-            dstTextRect.x = 0; dstTextRect.y = 0;
-            dstTextRect.w = textStart.imgW; dstTextRect.h = textStart.imgH;
             ball = createNPC(INIT_WIDTH, INIT_HEIGHT, 0, 1, gBall,
                              IMAGE_WIDTH, IMAGE_HEIGHT, hpPlayer);
 
@@ -65,7 +64,7 @@ int main(int argc, char* args[])
             /*While application is running*/
             while(!quit)
             {
-              curOption = 0;
+              curOptionMenu = 0;
               while(curScreen == SCREEN_MENU && !quit)
               {
                 if (curSong != 0){
@@ -87,14 +86,15 @@ int main(int argc, char* args[])
                           quit = true;
                           break;
                         case SDLK_UP:
-                          curOption = (curOption - 1) % 2;
+                          curOptionMenu = (curOptionMenu - 1) % 2;
                           break;
                         case SDLK_DOWN:
-                          curOption = (curOption + 1) % 2;
+                          curOptionMenu = (curOptionMenu + 1) % 2;
                           break;
                         case SDLK_RETURN:
                         case SDLK_RETURN2:
-                          if(curOption == 0)
+                        case SDLK_SPACE:
+                          if(curOptionMenu == 0)
                           {
                             curScreen = SCREEN_GAME;
                             Mix_PlayChannel(-1, gGameBegin, 0);
@@ -108,11 +108,25 @@ int main(int argc, char* args[])
                      }
                    }
                    SDL_RenderClear(gRenderer);
-                   if( SDL_RenderCopy(gRenderer, gTextStart, NULL, &dstTextRect) < 0 )
+                   writeTextToScreen(gTextStart, 60, 200 - textStart.imgH, textStart.imgW,
+                                     textStart.imgH, &quit);
+                   writeTextToScreen(gTextExit, 60, 400 - textExit.imgH, textExit.imgW,
+                                     textExit.imgH, &quit);
+                   if(curOptionMenu == 0)
                    {
-                     printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
-                     quit = true;
+                     writeTextToScreen(gTextArrow, 60 + textStart.imgW, 200 - textStart.imgH,
+                                       textArrow.imgW, textArrow.imgH, &quit);
                    }
+                   else if(curOptionMenu == 1)
+                   {
+                     writeTextToScreen(gTextArrow, 60 + textExit.imgW, 400 - textExit.imgH,
+                                       textArrow.imgW, textArrow.imgH, &quit);
+                   }
+                   writeTextToScreen(gTextHighscores, 400 + (SCREEN_WIDTH - textHighscores.imgW - 400)/2,
+                                     100 - textHighscores.imgH, textHighscores.imgW,
+                                     textHighscores.imgH, &quit);
+                   writeTextToScreen(gTextGrupo, 0, 600 - textGrupo.imgH, textGrupo.imgW,
+                                     textGrupo.imgH, &quit);
                    SDL_RenderPresent(gRenderer);
                    SDL_Delay(5);
                 }
@@ -138,7 +152,7 @@ int main(int argc, char* args[])
                     Mix_FadeInMusic(gFase1, 10, 100);
                     curSong = 1;
                   }
-                  while( SDL_PollEvent( &e ) != 0 )
+                  while(SDL_PollEvent(&e) != 0)
                   {
                       switch (e.type)
                       {
@@ -149,7 +163,59 @@ int main(int argc, char* args[])
                           switch (e.key.keysym.sym)
                           {
                             case SDLK_ESCAPE:
-                              quit = true;
+                              returnGame = false;
+                              curOptionGame = 0;
+                              while(returnGame == false)
+                              {
+                                while(SDL_PollEvent(&e) != 0)
+                                {
+                                    switch (e.type)
+                                    {
+                                      case SDL_QUIT:
+                                        returnGame = true;
+                                        quit = true;
+                                        break;
+                                      case SDL_KEYDOWN:
+                                        switch (e.key.keysym.sym)
+                                        {
+                                          case SDLK_UP:
+                                            curOptionGame = (curOptionGame - 1) % 2;
+                                            break;
+                                          case SDLK_DOWN:
+                                            curOptionGame = (curOptionGame + 1) % 2;
+                                            break;
+                                          case SDLK_RETURN:
+                                          case SDLK_RETURN2:
+                                          case SDLK_SPACE:
+                                            if(curOptionGame == 0) curScreen = SCREEN_MENU;
+                                          case SDLK_ESCAPE:
+                                            returnGame = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                SDL_RenderClear(gRenderer);
+                                writeTextToScreen(gTextMenu, 400 - textMenu.imgW/2,
+                                                  200 - textMenu.imgH, textMenu.imgW,
+                                                  textMenu.imgH, &quit);
+                                writeTextToScreen(gTextResume, 400 - textResume.imgW/2,
+                                                  400 - textResume.imgH, textResume.imgW,
+                                                  textResume.imgH, &quit);
+                                if(curOptionGame == 0)
+                                {
+                                  writeTextToScreen(gTextArrow, 400 + textMenu.imgW/2,
+                                                    200 - textMenu.imgH, textArrow.imgW,
+                                                    textArrow.imgH, &quit);
+                                }
+                                else if(curOptionGame == 1)
+                                {
+                                  writeTextToScreen(gTextArrow, 400 + textResume.imgW/2,
+                                                    400 - textResume.imgH, textArrow.imgW,
+                                                    textArrow.imgH, &quit);
+                                }
+                                SDL_RenderPresent(gRenderer);
+                                SDL_Delay(5);
+                              }
                               break;
                             case SDLK_LEFT:
                               player.stepX = -3;
@@ -188,7 +254,6 @@ int main(int argc, char* args[])
                     hpMax++;
                     if (hpMax > 3) hpMax = 3;
                     newlevel(bars, &ball, &player, hpMax);
-                    writeName(&e, nome);
                     break;
                   }
                   if(state == 1 || state == 2) ball.stepX = -ball.stepX;
@@ -201,6 +266,10 @@ int main(int argc, char* args[])
                   dstPlayerRect.w = player.imgW; dstPlayerRect.h = player.imgH;
 
                   SDL_RenderClear(gRenderer);
+                  writeTextToScreen(gTextScore, 0, 580 - textScore.imgH, textScore.imgW,
+                                    textScore.imgH, &quit);
+                  writeTextToScreen(gTextLives, 0, 600 - textLives.imgH, textLives.imgW,
+                                    textLives.imgH, &quit);
                   if( SDL_RenderCopy(gRenderer, ball.image, NULL, &dstRect ) < 0 )
                   {
                     printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
@@ -225,9 +294,11 @@ int main(int argc, char* args[])
                       }
                     }
                   }
-                  /*Update the surface*/
+                  showCurScore(score, &textCurScore, gTextCurScore, textScore.imgW + 10,
+                                580 - textScore.imgH, &quit);
+                  showCurLives(ball.hp, &textCurLives, gTextCurLives, textLives.imgW + 10,
+                                600 - textLives.imgH, &quit);
                   SDL_RenderPresent(gRenderer);
-                  /* Not so good solution, depends on your computer*/
                   if (avgtime > 14 && delay > 0){
                     delay--;
                     printf("Reduzi o delay para %d\n", delay);
@@ -237,10 +308,10 @@ int main(int argc, char* args[])
                     printf("Aumentei o delay para %d\n", delay);
                   }
                   SDL_Delay(delay);
-                  }
                 }
               }
             }
+          }
   closing();
   return 0;
 }

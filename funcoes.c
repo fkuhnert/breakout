@@ -115,7 +115,7 @@ bool init() {
                 printf("SDL_Renderer nao foi inicializado. SDL_Renderer: %s\n", SDL_GetError());
                 success = false;
             }
-            else SDL_SetRenderDrawColor(gRenderer, 0x0A, 0x0A, 0x0A, 0x0A);
+            else SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
             if( TTF_Init() == -1 )
                {
@@ -144,22 +144,27 @@ bool loadMedia() {
     /*Loading success flag*/
     bool success = true;
 
-    gFont = TTF_OpenFont("./assets/fonts/COMIC.TTF", 30);
-    if (gFont == NULL)
+    gFontMenu = TTF_OpenFont("./assets/fonts/COMIC.TTF", 26);
+    gFontGrupo = TTF_OpenFont("./assets/fonts/COMIC.TTF", 14);
+    gFontJogo = TTF_OpenFont("./assets/fonts/COMIC.TTF", 18);
+    if (gFontMenu == NULL && gFontGrupo == NULL && gFontJogo == NULL)
     {
       printf("Erro carregando fonte. Erro: %s\n", SDL_GetError());
       success = false;
     }
     else
     {
-      SDL_Color color = {0xFF, 0xFF, 0xFF};
-      gTextStart = loadText("Start", color, &textStart);
-      gTextExit = loadText("Exit", color, &textExit);
-      gTextHighscore = loadText("Highscore ", color, &textHighscore);
-      gTextLives = loadText("Lives ", color, &textLives);
-      gTextScore = loadText("Score ", color, &textScore);
-      gTextMenu = loadText("Back to menu", color, &textMenu);
-      gTextResume = loadText("Resume", color, &textResume);
+      SDL_Color color = {0x0A, 0x0A, 0x0A};
+      gTextStart = loadText("Jogar", color, &textStart, gFontMenu);
+      gTextExit = loadText("Sair", color, &textExit, gFontMenu);
+      gTextHighscores = loadText("Highscores", color, &textHighscores, gFontMenu);
+      gTextArrow = loadText(" < ", color, &textArrow, gFontMenu);
+      gTextLives = loadText("Vidas ", color, &textLives, gFontJogo);
+      gTextScore = loadText("Score ", color, &textScore, gFontJogo);
+      gTextMenu = loadText("Voltar ao menu", color, &textMenu, gFontMenu);
+      gTextResume = loadText("Resumir", color, &textResume, gFontMenu);
+      gTextGrupo = loadText("Grupo: Felipe V. Kuhnert, Gabriel M. Pinheiro, Jose Lucas Filippi",
+                            color, &textGrupo, gFontGrupo);
     }
     /*Load PNG surface*/
     gBall = loadTexture("./assets/images/circle.png");
@@ -292,14 +297,13 @@ SDL_Texture* loadTexture( char *path )
     return newTexture;
 }
 
-SDL_Texture* loadText(char* textureText, SDL_Color color, NPC* text)
+SDL_Texture* loadText(char* textureText, SDL_Color color, NPC* text, TTF_Font* font)
 {
     SDL_Texture* newText;
-    /*Load image at specified path*/
-    SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, textureText, color);
+    SDL_Surface* textSurface = TTF_RenderText_Solid(font, textureText, color);
     if(textSurface == NULL)
     {
-        printf( "Unable to load font! Erro: %s\n", SDL_GetError() );
+        printf("Unable to load font! Erro: %s\n", SDL_GetError());
     }
     else
     {
@@ -308,7 +312,6 @@ SDL_Texture* loadText(char* textureText, SDL_Color color, NPC* text)
             printf( "Nao foi possivel criar a texto! Erro: %s\n", SDL_GetError() );
         }
         text->imgW = textSurface->w; text->imgH = textSurface->h;
-        /*Get rid of old loaded surface*/
         SDL_FreeSurface(textSurface);
     }
     return newText;
@@ -388,164 +391,213 @@ void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax){
   p->stepX = 0;
 }
 
-void writeName(SDL_Event *e, char* nome)
+void writeTextToScreen(SDL_Texture* text, int x, int y, int w, int h, bool* quit)
 {
-  int i = 0;
-  while (i < 3)
+  SDL_Rect dstTextRect;
+  dstTextRect.x = x; dstTextRect.y = y;
+  dstTextRect.w = w; dstTextRect.h = h;
+  if( SDL_RenderCopy(gRenderer, text, NULL, &dstTextRect) < 0 )
   {
-    while( SDL_PollEvent(e) != 0 )
+    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+    *quit = true;
+  }
+}
+
+char* intToString(int i, char* string)
+{
+  char digit[] = "0123456789";
+  char *p = string;
+  int shifter = i;
+  do
+  {
+    p++;
+    shifter = shifter/10;
+  }
+  while(shifter);
+  *p = '\0';
+  do
+  {
+    *p-- = digit[i%10];
+    i = i/10;
+  }
+  while(i);
+  return string;
+}
+
+void showCurScore(int score, NPC* text, SDL_Texture* numberText, int x, int y, bool* quit)
+{
+  SDL_Color color = {0x0A, 0xFF, 0x0A};
+  char stringScore[10];
+  numberText = loadText(intToString(score, stringScore), color, text, gFontGrupo);
+  writeTextToScreen(numberText, x, y, text->imgW, text->imgH, quit);
+}
+
+void showCurLives(int lives, NPC* text, SDL_Texture* numberText, int x, int y, bool* quit)
+{
+  SDL_Color color = {0xFF, 0x0A, 0x0A};
+  char stringLives[10];
+  numberText = loadText(intToString(lives, stringLives), color, text, gFontGrupo);
+  writeTextToScreen(numberText, x, y, text->imgW, text->imgH, quit);
+}
+
+void writeName(SDL_Event *e, char* nome, int *i, bool* quit)
+{
+  while( SDL_PollEvent(e) != 0 )
+  {
+    switch (e->type)
     {
-      switch (e->type)
-      {
-        case SDL_KEYDOWN:
-          switch (e->key.keysym.sym)
-          {
-            case SDLK_0:
-              nome[i] = '0';
-              i++;
-              break;
-            case SDLK_1:
-              nome[i] = '1';
-              i++;
-              break;
-            case SDLK_2:
-              nome[i] = '2';
-              i++;
-              break;
-            case SDLK_3:
-              nome[i] = '3';
-              i++;
-              break;
-            case SDLK_4:
-              nome[i] = '4';
-              i++;
-              break;
-            case SDLK_5:
-              nome[i] = '5';
-              i++;
-              break;
-            case SDLK_6:
-              nome[i] = '6';
-              i++;
-              break;
-            case SDLK_7:
-              nome[i] = '7';
-              i++;
-              break;
-            case SDLK_8:
-              nome[i] = '8';
-              i++;
-              break;
-            case SDLK_9:
-              nome[i] = '9';
-              i++;
-              break;
-            case SDLK_a:
-              nome[i] = 'A';
-              i++;
-              break;
-            case SDLK_b:
-              nome[i] = 'B';
-              i++;
-              break;
-            case SDLK_c:
-              nome[i] = 'C';
-              i++;
-              break;
-            case SDLK_d:
-              nome[i] = 'D';
-              i++;
-              break;
-            case SDLK_e:
-              nome[i] = 'E';
-              i++;
-              break;
-            case SDLK_f:
-              nome[i] = 'F';
-              i++;
-              break;
-            case SDLK_g:
-              nome[i] = 'G';
-              i++;
-              break;
-            case SDLK_h:
-              nome[i] = 'H';
-              i++;
-              break;
-            case SDLK_i:
-              nome[i] = 'I';
-              i++;
-              break;
-            case SDLK_j:
-              nome[i] = 'J';
-              i++;
-              break;
-            case SDLK_k:
-              nome[i] = 'K';
-              i++;
-              break;
-            case SDLK_l:
-              nome[i] = 'L';
-              i++;
-              break;
-            case SDLK_m:
-              nome[i] = 'M';
-              i++;
-              break;
-            case SDLK_n:
-              nome[i] = 'N';
-              i++;
-              break;
-            case SDLK_o:
-              nome[i] = 'O';
-              i++;
-              break;
-            case SDLK_p:
-              nome[i] = 'P';
-              i++;
-              break;
-            case SDLK_q:
-              nome[i] = 'Q';
-              i++;
-              break;
-            case SDLK_r:
-              nome[i] = 'R';
-              i++;
-              break;
-            case SDLK_s:
-              nome[i] = 'S';
-              i++;
-              break;
-            case SDLK_t:
-              nome[i] = 'T';
-              i++;
-              break;
-            case SDLK_u:
-              nome[i] = 'U';
-              i++;
-              break;
-            case SDLK_v:
-              nome[i] = 'V';
-              i++;
-              break;
-            case SDLK_w:
-              nome[i] = 'W';
-              i++;
-              break;
-            case SDLK_x:
-              nome[i] = 'X';
-              i++;
-              break;
-            case SDLK_y:
-              nome[i] = 'Y';
-              i++;
-              break;
-            case SDLK_z:
-              nome[i] = 'Z';
-              i++;
-              break;
-          }
-       }
+      case SDL_KEYDOWN:
+        switch (e->key.keysym.sym)
+        {
+          case SDLK_0:
+            nome[*i] = '0';
+            *i += 1;
+            break;
+          case SDLK_1:
+            nome[*i] = '1';
+            *i += 1;
+            break;
+          case SDLK_2:
+            nome[*i] = '2';
+            *i += 1;
+            break;
+          case SDLK_3:
+            nome[*i] = '3';
+            *i += 1;
+            break;
+          case SDLK_4:
+            nome[*i] = '4';
+            *i += 1;
+            break;
+          case SDLK_5:
+            nome[*i] = '5';
+            *i += 1;
+            break;
+          case SDLK_6:
+            nome[*i] = '6';
+            *i += 1;
+            break;
+          case SDLK_7:
+            nome[*i] = '7';
+            *i += 1;
+            break;
+          case SDLK_8:
+            nome[*i] = '8';
+            *i += 1;
+            break;
+          case SDLK_9:
+            nome[*i] = '9';
+            *i += 1;
+            break;
+          case SDLK_a:
+            nome[*i] = 'A';
+            *i += 1;
+            break;
+          case SDLK_b:
+            nome[*i] = 'B';
+            *i += 1;
+            break;
+          case SDLK_c:
+            nome[*i] = 'C';
+            *i += 1;
+            break;
+          case SDLK_d:
+            nome[*i] = 'D';
+            *i += 1;
+            break;
+          case SDLK_e:
+            nome[*i] = 'E';
+            *i += 1;
+            break;
+          case SDLK_f:
+            nome[*i] = 'F';
+            *i += 1;
+            break;
+          case SDLK_g:
+            nome[*i] = 'G';
+            *i += 1;
+            break;
+          case SDLK_h:
+            nome[*i] = 'H';
+            *i += 1;
+            break;
+          case SDLK_i:
+            nome[*i] = 'I';
+            *i += 1;
+            break;
+          case SDLK_j:
+            nome[*i] = 'J';
+            *i += 1;
+            break;
+          case SDLK_k:
+            nome[*i] = 'K';
+            *i += 1;
+            break;
+          case SDLK_l:
+            nome[*i] = 'L';
+            *i += 1;
+            break;
+          case SDLK_m:
+            nome[*i] = 'M';
+            *i += 1;
+            break;
+          case SDLK_n:
+            nome[*i] = 'N';
+            *i += 1;
+            break;
+          case SDLK_o:
+            nome[*i] = 'O';
+            *i += 1;
+            break;
+          case SDLK_p:
+            nome[*i] = 'P';
+            *i += 1;
+            break;
+          case SDLK_q:
+            nome[*i] = 'Q';
+            *i += 1;
+            break;
+          case SDLK_r:
+            nome[*i] = 'R';
+            *i += 1;
+            break;
+          case SDLK_s:
+            nome[*i] = 'S';
+            *i += 1;
+            break;
+          case SDLK_t:
+            nome[*i] = 'T';
+            *i += 1;
+            break;
+          case SDLK_u:
+            nome[*i] = 'U';
+            *i += 1;
+            break;
+          case SDLK_v:
+            nome[*i] = 'V';
+            *i += 1;
+            break;
+          case SDLK_w:
+            nome[*i] = 'W';
+            *i += 1;
+            break;
+          case SDLK_x:
+            nome[*i] = 'X';
+            *i += 1;
+            break;
+          case SDLK_y:
+            nome[*i] = 'Y';
+            *i += 1;
+            break;
+          case SDLK_z:
+            nome[*i] = 'Z';
+            *i += 1;
+            break;
+        }
+        break;
+      case SDL_QUIT:
+        *quit = true;
+        break;
     }
   }
 }

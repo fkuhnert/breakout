@@ -1,10 +1,3 @@
-/*
- * funcoes.h
- *
- * Copyright 2016 Adriano Cruz <adriano@nce.ufrj.br>
- *
- */
-
 #ifndef FUNCOES_H
 #define FUNCOES_H
 
@@ -12,24 +5,18 @@
 #include "Globais.h"
 #include "NPC.h"
 
-/*Starts up SDL and creates window*/
 bool init();
 
-/*Loads media*/
 bool loadMedia();
 
-/*Frees media and shuts down SDL*/
 void closing();
 
-/*Loads individual image*/
 SDL_Texture* loadTexture(char *);
 
-SDL_Texture* loadText(char* textureText, SDL_Color color, NPC* text);
+SDL_Texture* loadText(char*, SDL_Color, NPC*, TTF_Font*);
 
-/*Create NPC*/
 NPC createNPC(int, int, int, int, SDL_Texture *, int, int, int);
 
-/*Move NPC*/
 void moveNPC(NPC *);
 
 void movePlayer(NPC *);
@@ -38,12 +25,18 @@ void checkcollideplayer(NPC *, NPC *);
 
 int collisionNPC(NPC *, NPC *, int *);
 
-int hitNPC(NPC *object, int op, int vel, int *score);
+int hitNPC(NPC *, int, int, int *);
 
 void checkspeed(NPC *);
 
-void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax);
+void newlevel(NPC *, NPC *, NPC *, int);
 
-void writeName(SDL_Event *e, char* nome);
+void writeTextToScreen(SDL_Texture*, int, int, int, int, bool*);
+
+void showCurScore(int score, NPC* text, SDL_Texture* numberText, int x, int y, bool* quit);
+
+void showCurLives(int lives, NPC* text, SDL_Texture* numberText, int x, int y, bool* quit);
+
+void writeName(SDL_Event *, char*, int*, bool*);
 
 #endif

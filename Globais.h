@@ -1,10 +1,3 @@
-/*
- * Globais.h
- *
- * Copyright 2016 Adriano Cruz <adriano@nce.ufrj.br>
- *
- */
-
 #ifndef GLOBAIS_H
 #define GLOBAIS_H
 
@@ -30,8 +23,12 @@ extern SDL_Texture* gTextHighscore;
 extern SDL_Texture* gTextHighscores;
 extern SDL_Texture* gTextLives;
 extern SDL_Texture* gTextScore;
+extern SDL_Texture* gTextCurScore;
+extern SDL_Texture* gTextCurLives;
 extern SDL_Texture* gTextMenu;
 extern SDL_Texture* gTextResume;
+extern SDL_Texture* gTextGrupo;
+extern SDL_Texture* gTextArrow;
 
 extern Mix_Chunk *gBottom;
 extern Mix_Chunk *gTop;
@@ -43,7 +40,9 @@ extern Mix_Music *gFase1;
 extern Mix_Music *gFase2;
 extern Mix_Music *gFase3;
 
-extern TTF_Font *gFont;
+extern TTF_Font *gFontJogo;
+extern TTF_Font *gFontMenu;
+extern TTF_Font *gFontGrupo;
 
 extern uint32_t colorkey;
 
