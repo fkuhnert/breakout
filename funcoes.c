@@ -142,7 +142,11 @@ bool loadMedia() {
     /*Load PNG surface*/
     gBall = loadTexture( "./assets/images/circle.png" );
     gBlock = loadTexture("./assets/images/block.png");
+    gBlock1 = loadTexture("./assets/images/block1.png");
+    gBlock2 = loadTexture("./assets/images/block2.png");
+    gBlock3 = loadTexture("./assets/images/block3.png");
     gPlayer = loadTexture("./assets/images/player.png");
+    gBackground = loadTexture("./assets/images/background.png");
 
     /*Loads audio files*/
     if( gBall == NULL || gBlock == NULL || gPlayer == NULL) {
@@ -201,10 +205,16 @@ void closing() {
     /*Free loaded image*/
     SDL_DestroyTexture( gBall );
     SDL_DestroyTexture( gBlock );
+    SDL_DestroyTexture( gBlock1 );
+    SDL_DestroyTexture( gBlock2 );
+    SDL_DestroyTexture( gBlock3 );
     SDL_DestroyTexture( gPlayer );
     gBall = NULL;
     gPlayer = NULL;
     gBlock = NULL;
+    gBlock1 = NULL;
+    gBlock2 = NULL;
+    gBlock3 = NULL;
 
     /*Destroy window*/
     SDL_DestroyWindow( gWindow );
@@ -264,6 +274,17 @@ SDL_Texture* loadTexture( char *path )
 int hitNPC(NPC *object, int op, int vel)
 {
     object->hp = object->hp <= 1 ? 0 : object->hp - 1;
+    switch (object->hp){
+      case 1:
+        object->image = gBlock1;
+        break;
+      case 2:
+        object->image = gBlock2;
+        break;
+      case 3:
+        object->image = gBlock3;
+        break;
+    }
     Mix_PlayChannel( -1, gBlockHit, 0 );
     op = op < 0 ? -op : op;
     if(op <= vel) return 1;
@@ -298,6 +319,17 @@ void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax){
   int scan;
   for (scan = 0; scan < 30; scan++){
     bars[scan].hp = (rand() % hpMax + 1);
+    switch (bars[scan].hp){
+      case 1:
+        bars[scan].image = gBlock1;
+        break;
+      case 2:
+        bars[scan].image = gBlock2;
+        break;
+      case 3:
+        bars[scan].image = gBlock3;
+        break;
+    }
   }
   circle->posX = INIT_WIDTH; circle->posY = INIT_HEIGHT;
   circle->stepX = 0; circle->stepY = 1;

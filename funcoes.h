@@ -38,6 +38,6 @@ int collisionNPC(NPC *, NPC *, int *);
 
 void checkspeed(NPC *);
 
-#endif
-
 void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax);
+
+#endif

@@ -52,7 +52,11 @@ SDL_Renderer* gRenderer = NULL;
 /*Current displayed PNG image*/
 SDL_Texture* gBall = NULL;
 SDL_Texture* gBlock = NULL;
+SDL_Texture* gBlock1 = NULL;
+SDL_Texture* gBlock2 = NULL;
+SDL_Texture* gBlock3 = NULL;
 SDL_Texture* gPlayer = NULL;
+SDL_Texture* gBackground = NULL;
 
 /* Audio for game */
 Mix_Chunk *gBottom = NULL;

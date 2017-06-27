@@ -18,7 +18,11 @@ extern SDL_Renderer* gRenderer;
 
 extern SDL_Texture* gBall;
 extern SDL_Texture* gBlock;
+extern SDL_Texture* gBlock1;
+extern SDL_Texture* gBlock2;
+extern SDL_Texture* gBlock3;
 extern SDL_Texture* gPlayer;
+extern SDL_Texture* gBackground;
 
 extern Mix_Chunk *gBottom;
 extern Mix_Chunk *gTop;
