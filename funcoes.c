@@ -271,10 +271,13 @@ SDL_Texture* loadTexture( char *path )
     return newTexture;
 }
 
-int hitNPC(NPC *object, int op, int vel)
+int hitNPC(NPC *object, int op, int vel, int *score)
 {
     object->hp = object->hp <= 1 ? 0 : object->hp - 1;
     switch (object->hp){
+      case 0:
+        *score += 100;
+        break;
       case 1:
         object->image = gBlock1;
         break;
@@ -285,7 +288,7 @@ int hitNPC(NPC *object, int op, int vel)
         object->image = gBlock3;
         break;
     }
-    Mix_PlayChannel( -1, gBlockHit, 0 );
+    Mix_PlayChannel( -1, gTop, 0 );
     op = op < 0 ? -op : op;
     if(op <= vel) return 1;
     else return 4;
@@ -301,23 +304,27 @@ int collisionNPC(NPC *object, NPC *circle, int *score)
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
     op = circle->posX + IMAGE_WIDTH - 5 - object->posX;
-    *score += 100;
-    return hitNPC(object, op, vel);
+    return hitNPC(object, op, vel, score);
   }
   else if(circle->posX + 5 >= object->posX && circle->posX + 5 <= object->posX + 80
     && circle->posY + 5 <= object->posY + 40
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
     op = circle->posX + 5 - (object->posX + 80);
-    *score += 100;
-    return hitNPC(object, op, vel);
+    return hitNPC(object, op, vel, score);
   }
   return 0;
 }
 
 void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax){
-  int scan;
+  int scan, random;
   for (scan = 0; scan < 30; scan++){
+    random = rand()%100;
+    printf("Random = %d\n", random);
+    if (random > 20) bars[scan].hp = 1;
+    if (random <= 20 && random > 7) bars[scan].hp = 2;
+    if (random <= 7 && random >= 0) bars[scan].hp = 3;
+    if (bars[scan].hp > hpMax) bars[scan].hp = 1;
     bars[scan].hp = (rand() % hpMax + 1);
     switch (bars[scan].hp){
       case 1:

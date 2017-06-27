@@ -25,11 +25,12 @@
 int main(int argc, char* args[])
 {
     SDL_Rect dstRect, dstBarsRect, dstPlayerRect;
-    int quit, curH, curW, curScreen, curSong, state, quantBroke, score, time2, frametime;
+    int quit, curH, curW, curScreen, curSong, state, quantBroke, score, time2, avgtime, frametime;
     int hpMax = 1;
     int hpPlayer = 3;
     int time1 = 0;
     int delay = 5;
+    int loopNum = 0;
     /*Start up SDL and create window*/
     score = 0;
     if(!init()) printf("Failed to initialize!\n");
@@ -98,13 +99,20 @@ int main(int argc, char* args[])
                 }
                 while(curScreen == SCREEN_GAME && !quit)
                 {
+
                   if (time1 == 0){
                     time1 = SDL_GetTicks();
                   }
                   else{
                     time2 = SDL_GetTicks();
-                    frametime = time2 - time1;
+                    frametime += (time2 - time1);
                     time1 = 0;
+                    loopNum++;
+                  }
+                  if (loopNum > 20){
+                    avgtime = frametime/10;
+                    loopNum = 0;
+                    frametime = 0;
                   }
                   if (curSong == 0){
                     Mix_FadeOutMusic(100);
@@ -159,6 +167,7 @@ int main(int argc, char* args[])
                   {
                     score += 1000;
                     hpMax++;
+                    if (hpMax > 3) hpMax = 3;
                     newlevel(bars, &ball, &player, hpMax);
                     break;
                   }
@@ -172,11 +181,6 @@ int main(int argc, char* args[])
                   dstPlayerRect.w = player.imgW; dstPlayerRect.h = player.imgH;
 
                   SDL_RenderClear(gRenderer);
-                  if( SDL_RenderCopy(gRenderer, gBackground, NULL, 0 ) < 0 )
-                  {
-                    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
-                    quit = true;
-                  }
                   if( SDL_RenderCopy(gRenderer, ball.image, NULL, &dstRect ) < 0 )
                   {
                     printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
@@ -204,11 +208,11 @@ int main(int argc, char* args[])
                   /*Update the surface*/
                   SDL_RenderPresent(gRenderer);
                   /* Not so good solution, depends on your computer*/
-                  if (frametime > 12 && delay > 1){
+                  if (avgtime > 14 && delay > 0){
                     delay--;
                     printf("Reduzi o delay para %d\n", delay);
                   }
-                  if (frametime > 5 && delay < 1){
+                  if (avgtime < 10 && delay < 3){
                     delay++;
                     printf("Aumentei o delay para %d\n", delay);
                   }
