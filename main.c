@@ -24,12 +24,12 @@
 
 int main(int argc, char* args[])
 {
-    SDL_Rect dstRect, dstBarsRect, dstPlayerRect;
-    int quit, curH, curW, curScreen, curSong, state, quantBroke, score;
+    SDL_Rect dstRect, dstBarsRect, dstPlayerRect, dstTextRect;
+    int quit, curH, curW, curScreen, curSong, state, quantBroke, curOption;
+    char nome[3];
     int hpMax = 2;
     int hpPlayer = 3;
-    /*Start up SDL and create window*/
-    score = 0;
+    int score = 0;
     if(!init()) printf("Failed to initialize!\n");
     else
     {
@@ -37,6 +37,8 @@ int main(int argc, char* args[])
         if(!loadMedia()) printf("Failed to load media!\n");
         else
         {
+            dstTextRect.x = 0; dstTextRect.y = 0;
+            dstTextRect.w = textStart.imgW; dstTextRect.h = textStart.imgH;
             ball = createNPC(INIT_WIDTH, INIT_HEIGHT, 0, 1, gBall,
                              IMAGE_WIDTH, IMAGE_HEIGHT, hpPlayer);
 
@@ -60,6 +62,7 @@ int main(int argc, char* args[])
             /*While application is running*/
             while(!quit)
             {
+              curOption = 0;
               while(curScreen == SCREEN_MENU && !quit)
               {
                 if (curSong != 0){
@@ -80,17 +83,33 @@ int main(int argc, char* args[])
                         case SDLK_ESCAPE:
                           quit = true;
                           break;
+                        case SDLK_UP:
+                          curOption = (curOption - 1) % 2;
+                          break;
                         case SDLK_DOWN:
-                          curScreen = SCREEN_GAME;
-                          Mix_PlayChannel(-1, gGameBegin, 0);
-                          newlevel(bars, &ball, &player, hpMax);
-                          SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                          curOption = (curOption + 1) % 2;
+                          break;
+                        case SDLK_RETURN:
+                        case SDLK_RETURN2:
+                          if(curOption == 0)
+                          {
+                            curScreen = SCREEN_GAME;
+                            Mix_PlayChannel(-1, gGameBegin, 0);
+                            newlevel(bars, &ball, &player, hpMax);
+                            SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+                          }
+                          else quit = true;
                           break;
                         }
                         break;
                      }
                    }
                    SDL_RenderClear(gRenderer);
+                   if( SDL_RenderCopy(gRenderer, gTextStart, NULL, &dstTextRect) < 0 )
+                   {
+                     printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                     quit = true;
+                   }
                    SDL_RenderPresent(gRenderer);
                    SDL_Delay(5);
                 }
@@ -150,6 +169,7 @@ int main(int argc, char* args[])
                     score += 1000;
                     hpMax++;
                     newlevel(bars, &ball, &player, hpMax);
+                    writeName(&e, nome);
                     break;
                   }
                   if(state == 1 || state == 2) ball.stepX = -ball.stepX;

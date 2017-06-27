@@ -35,7 +35,6 @@ void moveNPC(NPC *p) {
         p->posY = INIT_HEIGHT;
         p->stepY = 1;
         p->stepX = 0;
-        printf("%d\n", p->hp);
     }
     else if (p->posY < 0)
     {
@@ -116,7 +115,13 @@ bool init() {
                 printf("SDL_Renderer nao foi inicializado. SDL_Renderer: %s\n", SDL_GetError());
                 success = false;
             }
-            else SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
+            else SDL_SetRenderDrawColor(gRenderer, 0x0A, 0x0A, 0x0A, 0x0A);
+
+            if( TTF_Init() == -1 )
+               {
+                   printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
+                   success = false;
+               }
 
             /*Initialize JPG and PNG loading */
             int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
@@ -139,8 +144,25 @@ bool loadMedia() {
     /*Loading success flag*/
     bool success = true;
 
+    gFont = TTF_OpenFont("./assets/fonts/COMIC.TTF", 30);
+    if (gFont == NULL)
+    {
+      printf("Erro carregando fonte. Erro: %s\n", SDL_GetError());
+      success = false;
+    }
+    else
+    {
+      SDL_Color color = {0xFF, 0xFF, 0xFF};
+      gTextStart = loadText("Start", color, &textStart);
+      gTextExit = loadText("Exit", color, &textExit);
+      gTextHighscore = loadText("Highscore ", color, &textHighscore);
+      gTextLives = loadText("Lives ", color, &textLives);
+      gTextScore = loadText("Score ", color, &textScore);
+      gTextMenu = loadText("Back to menu", color, &textMenu);
+      gTextResume = loadText("Resume", color, &textResume);
+    }
     /*Load PNG surface*/
-    gBall = loadTexture( "./assets/images/circle.png" );
+    gBall = loadTexture("./assets/images/circle.png");
     gBlock = loadTexture("./assets/images/block.png");
     gPlayer = loadTexture("./assets/images/player.png");
 
@@ -250,7 +272,6 @@ SDL_Texture* loadTexture( char *path )
     {
         colorkey = SDL_MapRGB (loadedSurface->format, 0xFF, 0xFF, 0xFF);
         SDL_SetColorKey(loadedSurface, SDL_TRUE, colorkey);
-        /*Convert surface to screen format*/
         newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
         if( newTexture == NULL ) {
             printf( "Nao foi possivel criar a textura de %s! Erro: %s\n", path, SDL_GetError() );
@@ -259,6 +280,28 @@ SDL_Texture* loadTexture( char *path )
         SDL_FreeSurface(loadedSurface);
     }
     return newTexture;
+}
+
+SDL_Texture* loadText(char* textureText, SDL_Color color, NPC* text)
+{
+    SDL_Texture* newText;
+    /*Load image at specified path*/
+    SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, textureText, color);
+    if(textSurface == NULL)
+    {
+        printf( "Unable to load font! Erro: %s\n", SDL_GetError() );
+    }
+    else
+    {
+        newText = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+        if(newText == NULL) {
+            printf( "Nao foi possivel criar a texto! Erro: %s\n", SDL_GetError() );
+        }
+        text->imgW = textSurface->w; text->imgH = textSurface->h;
+        /*Get rid of old loaded surface*/
+        SDL_FreeSurface(textSurface);
+    }
+    return newText;
 }
 
 int hitNPC(NPC *object, int op, int vel)
@@ -304,4 +347,166 @@ void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax){
 
   p->posX = SCREEN_WIDTH/2 - PLAYER_WIDTH/2; p->posY = SCREEN_HEIGHT - PLAYER_HEIGHT - 2;
   p->stepX = 0;
+}
+
+void writeName(SDL_Event *e, char* nome)
+{
+  int i = 0;
+  while (i < 3)
+  {
+    while( SDL_PollEvent(e) != 0 )
+    {
+      switch (e->type)
+      {
+        case SDL_KEYDOWN:
+          switch (e->key.keysym.sym)
+          {
+            case SDLK_0:
+              nome[i] = '0';
+              i++;
+              break;
+            case SDLK_1:
+              nome[i] = '1';
+              i++;
+              break;
+            case SDLK_2:
+              nome[i] = '2';
+              i++;
+              break;
+            case SDLK_3:
+              nome[i] = '3';
+              i++;
+              break;
+            case SDLK_4:
+              nome[i] = '4';
+              i++;
+              break;
+            case SDLK_5:
+              nome[i] = '5';
+              i++;
+              break;
+            case SDLK_6:
+              nome[i] = '6';
+              i++;
+              break;
+            case SDLK_7:
+              nome[i] = '7';
+              i++;
+              break;
+            case SDLK_8:
+              nome[i] = '8';
+              i++;
+              break;
+            case SDLK_9:
+              nome[i] = '9';
+              i++;
+              break;
+            case SDLK_a:
+              nome[i] = 'A';
+              i++;
+              break;
+            case SDLK_b:
+              nome[i] = 'B';
+              i++;
+              break;
+            case SDLK_c:
+              nome[i] = 'C';
+              i++;
+              break;
+            case SDLK_d:
+              nome[i] = 'D';
+              i++;
+              break;
+            case SDLK_e:
+              nome[i] = 'E';
+              i++;
+              break;
+            case SDLK_f:
+              nome[i] = 'F';
+              i++;
+              break;
+            case SDLK_g:
+              nome[i] = 'G';
+              i++;
+              break;
+            case SDLK_h:
+              nome[i] = 'H';
+              i++;
+              break;
+            case SDLK_i:
+              nome[i] = 'I';
+              i++;
+              break;
+            case SDLK_j:
+              nome[i] = 'J';
+              i++;
+              break;
+            case SDLK_k:
+              nome[i] = 'K';
+              i++;
+              break;
+            case SDLK_l:
+              nome[i] = 'L';
+              i++;
+              break;
+            case SDLK_m:
+              nome[i] = 'M';
+              i++;
+              break;
+            case SDLK_n:
+              nome[i] = 'N';
+              i++;
+              break;
+            case SDLK_o:
+              nome[i] = 'O';
+              i++;
+              break;
+            case SDLK_p:
+              nome[i] = 'P';
+              i++;
+              break;
+            case SDLK_q:
+              nome[i] = 'Q';
+              i++;
+              break;
+            case SDLK_r:
+              nome[i] = 'R';
+              i++;
+              break;
+            case SDLK_s:
+              nome[i] = 'S';
+              i++;
+              break;
+            case SDLK_t:
+              nome[i] = 'T';
+              i++;
+              break;
+            case SDLK_u:
+              nome[i] = 'U';
+              i++;
+              break;
+            case SDLK_v:
+              nome[i] = 'V';
+              i++;
+              break;
+            case SDLK_w:
+              nome[i] = 'W';
+              i++;
+              break;
+            case SDLK_x:
+              nome[i] = 'X';
+              i++;
+              break;
+            case SDLK_y:
+              nome[i] = 'Y';
+              i++;
+              break;
+            case SDLK_z:
+              nome[i] = 'Z';
+              i++;
+              break;
+          }
+       }
+    }
+  }
 }

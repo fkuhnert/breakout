@@ -20,6 +20,15 @@ extern SDL_Texture* gBall;
 extern SDL_Texture* gBlock;
 extern SDL_Texture* gPlayer;
 
+extern SDL_Texture* gTextStart;
+extern SDL_Texture* gTextExit;
+extern SDL_Texture* gTextHighscore;
+extern SDL_Texture* gTextHighscores;
+extern SDL_Texture* gTextLives;
+extern SDL_Texture* gTextScore;
+extern SDL_Texture* gTextMenu;
+extern SDL_Texture* gTextResume;
+
 extern Mix_Chunk *gBottom;
 extern Mix_Chunk *gTop;
 extern Mix_Chunk *gWall;

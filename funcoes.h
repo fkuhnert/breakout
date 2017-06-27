@@ -24,6 +24,8 @@ void closing();
 /*Loads individual image*/
 SDL_Texture* loadTexture(char *);
 
+SDL_Texture* loadText(char* textureText, SDL_Color color, NPC* text);
+
 /*Create NPC*/
 NPC createNPC(int, int, int, int, SDL_Texture *, int, int, int);
 
@@ -36,8 +38,12 @@ void checkcollideplayer(NPC *, NPC *);
 
 int collisionNPC(NPC *, NPC *, int *);
 
+int hitNPC(NPC *object, int op, int vel);
+
 void checkspeed(NPC *);
 
-#endif
-
 void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax);
+
+void writeName(SDL_Event *e, char* nome);
+
+#endif

@@ -42,6 +42,14 @@ SDL_Window* gWindow = NULL;
 NPC ball;
 NPC bars[30];
 NPC player;
+NPC textStart;
+NPC textExit;
+NPC textHighscore;
+NPC textHighscores[10];
+NPC textLives;
+NPC textScore;
+NPC textMenu;
+NPC textResume;
 
 /*Colokey for the objetcs*/
 uint32_t colorkey;
@@ -49,10 +57,18 @@ uint32_t colorkey;
 /*Window renderer*/
 SDL_Renderer* gRenderer = NULL;
 
-/*Current displayed PNG image*/
 SDL_Texture* gBall = NULL;
 SDL_Texture* gBlock = NULL;
 SDL_Texture* gPlayer = NULL;
+
+SDL_Texture* gTextStart = NULL;
+SDL_Texture* gTextExit = NULL;
+SDL_Texture* gTextHighscore = NULL;
+SDL_Texture* gTextHighscores = NULL;
+SDL_Texture* gTextLives = NULL;
+SDL_Texture* gTextScore = NULL;
+SDL_Texture* gTextMenu = NULL;
+SDL_Texture* gTextResume = NULL;
 
 /* Audio for game */
 Mix_Chunk *gBottom = NULL;
