@@ -204,9 +204,13 @@ int main(int argc, char* args[])
                   /*Update the surface*/
                   SDL_RenderPresent(gRenderer);
                   /* Not so good solution, depends on your computer*/
-                  if (frametime > 10 && delay > 1){
+                  if (frametime > 12 && delay > 1){
                     delay--;
                     printf("Reduzi o delay para %d\n", delay);
+                  }
+                  if (frametime > 5 && delay < 1){
+                    delay++;
+                    printf("Aumentei o delay para %d\n", delay);
                   }
                   SDL_Delay(delay);
                   }
