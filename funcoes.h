@@ -38,7 +38,7 @@ void checkcollideplayer(NPC *, NPC *);
 
 int collisionNPC(NPC *, NPC *, int *);
 
-int hitNPC(NPC *object, int op, int vel);
+int hitNPC(NPC *object, int op, int vel, int *score);
 
 void checkspeed(NPC *);
 

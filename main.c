@@ -26,6 +26,7 @@ int main(int argc, char* args[])
 {
     SDL_Rect dstRect, dstBarsRect, dstPlayerRect, dstTextRect;
     int quit, curH, curW, curScreen, curSong, state, quantBroke, score, time2, avgtime, frametime, curOption;
+    char nome[3];
     int hpMax = 1;
     int hpPlayer = 3;
     int time1 = 0;
