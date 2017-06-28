@@ -17,7 +17,7 @@ int main(int argc, char* args[])
 {
     SDL_Rect dstRect, dstBarsRect, dstPlayerRect;
     int curH, curW, curScreen, curSong, state, quantBroke, score, time2, avgtime,
-        frametime, curOptionMenu, curOptionGame;
+        frametime, curOptionMenu, curOptionGame, playing;
     int hpMax = 1;
     int hpPlayer = 3;
     int time1 = 0;
@@ -59,6 +59,7 @@ int main(int argc, char* args[])
                   Mix_FadeOutMusic(100);
                   Mix_PlayMusic(gMenu, -1);
                   curSong = 0;
+                  playing = 0;
                 }
                 while( SDL_PollEvent( &e ) != 0 )
                 {
@@ -133,9 +134,22 @@ int main(int argc, char* args[])
                     frametime = 0;
                   }
                   if (curSong == 0){
+                    curSong = 1;
+                  }
+                  if (curSong == 1 && playing != 1){
                     Mix_FadeOutMusic(100);
                     Mix_FadeInMusic(gFase1, 10, 100);
-                    curSong = 1;
+                    playing = 1;
+                  }
+                  if (curSong == 2 && playing != 2){
+                    Mix_FadeOutMusic(100);
+                    Mix_FadeInMusic(gFase2, 10, 100);
+                    playing = 2;
+                  }
+                  if (curSong == 3){
+                    Mix_FadeOutMusic(100);
+                    Mix_FadeInMusic(gFase3, 10, 100);
+                    playing = 3;
                   }
                   while(SDL_PollEvent(&e) != 0)
                   {
@@ -172,7 +186,11 @@ int main(int argc, char* args[])
                                           case SDLK_RETURN:
                                           case SDLK_RETURN2:
                                           case SDLK_SPACE:
-                                            if(curOptionGame == 0) curScreen = SCREEN_MENU;
+                                            if(curOptionGame == 0){
+                                              curScreen = SCREEN_MENU;
+                                              score = 0;
+                                              hpPlayer = 3;
+                                            }
                                           case SDLK_ESCAPE:
                                             returnGame = true;
                                             break;
@@ -247,6 +265,9 @@ int main(int argc, char* args[])
                     hpMax++;
                     if (hpMax > 3) hpMax = 3;
                     newlevel(bars, &ball, &player, hpMax);
+                    if (curSong < 4){
+                      curSong++;
+                    }
                     continue;
                   }
                   if(state == 1 || state == 2) ball.stepX = -ball.stepX;
