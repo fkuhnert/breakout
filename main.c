@@ -146,7 +146,7 @@ int main(int argc, char* args[])
                     Mix_FadeInMusic(gFase2, 10, 100);
                     playing = 2;
                   }
-                  if (curSong == 3){
+                  if (curSong == 3 && playing != 3){
                     Mix_FadeOutMusic(100);
                     Mix_FadeInMusic(gFase3, 10, 100);
                     playing = 3;
@@ -190,6 +190,7 @@ int main(int argc, char* args[])
                                               curScreen = SCREEN_MENU;
                                               score = 0;
                                               hpPlayer = 3;
+                                              hpMax = 1;
                                             }
                                           case SDLK_ESCAPE:
                                             returnGame = true;
