@@ -1,10 +1,3 @@
-/*
- * funcoes.c
- *
- * Copyright 2016 Adriano Cruz <adriano@nce.ufrj.br>
- *
- */
-
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
@@ -72,7 +65,7 @@ void movePlayer(NPC *p){
     }
 }
 
-/*Create NPC*/
+/*Cria NPC*/
 NPC createNPC(int posX, int posY, int stepX, int stepY, SDL_Texture *image,
               int imgW, int imgH, int hp)
 {
@@ -89,22 +82,17 @@ NPC createNPC(int posX, int posY, int stepX, int stepY, SDL_Texture *image,
 }
 
 bool init() {
-    /*Initialization flag*/
     bool success = true;
-
-    /*Sets the rand seed to the current time*/
     srand(time(NULL));
 
-    /*Initialize SDL*/
-    if( SDL_Init( SDL_INIT_VIDEO | SDL_INIT_AUDIO ) < 0 ) {
-        printf( "SDL could not initialize! SDL Error: %s\n", SDL_GetError() );
+    if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+        printf("SDL nao foi inicializado. Erro: %s\n", SDL_GetError());
         success = false;
     }
     else {
-        /*Create window*/
-        gWindow = SDL_CreateWindow( "Breakout!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN );
-        if( gWindow == NULL ) {
-            printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
+        gWindow = SDL_CreateWindow("Breakout!", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        if(gWindow == NULL) {
+            printf("Janela nao foi criada. Erro: %s\n", SDL_GetError());
             success = false;
         }
         else
@@ -112,27 +100,26 @@ bool init() {
             gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
             if(gRenderer == NULL)
             {
-                printf("SDL_Renderer nao foi inicializado. SDL_Renderer: %s\n", SDL_GetError());
+                printf("SDL_Renderer nao foi inicializado. Erro: %s\n", SDL_GetError());
                 success = false;
             }
             else SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
 
             if( TTF_Init() == -1 )
-               {
-                   printf( "SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError() );
-                   success = false;
-               }
-
-            /*Initialize JPG and PNG loading */
-            int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
-            if( !( IMG_Init( imgFlags ) & imgFlags ) )
             {
-                printf( "SDL_image could not initialize! SDL_image Error: %s\n", IMG_GetError() );
+               printf("SDL_ttf nao foi inicializado. Erro: %s\n", TTF_GetError());
+               success = false;
+            }
+            int imgFlags = IMG_INIT_JPG | IMG_INIT_PNG;
+
+            if(!(IMG_Init(imgFlags) & imgFlags))
+            {
+                printf("SDL_image nao foi inicializado. Erro: %s\n", IMG_GetError());
                 success = false;
             }
-            if( Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0 )
+            if( Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0)
             {
-                printf( "SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError() );
+                printf("SDL_mixer nao foi inicializado. Erro: %s\n", Mix_GetError());
                 success = false;
             }
         }
@@ -141,7 +128,6 @@ bool init() {
 }
 
 bool loadMedia() {
-    /*Loading success flag*/
     bool success = true;
 
     gFontMenu = TTF_OpenFont("./assets/fonts/COMIC.TTF", 26);
@@ -157,7 +143,6 @@ bool loadMedia() {
       SDL_Color color = {0x0A, 0x0A, 0x0A};
       gTextStart = loadText("Jogar", color, &textStart, gFontMenu);
       gTextExit = loadText("Sair", color, &textExit, gFontMenu);
-      gTextHighscores = loadText("Highscores", color, &textHighscores, gFontMenu);
       gTextArrow = loadText(" < ", color, &textArrow, gFontMenu);
       gTextLives = loadText("Vidas ", color, &textLives, gFontJogo);
       gTextScore = loadText("Score ", color, &textScore, gFontJogo);
@@ -166,164 +151,199 @@ bool loadMedia() {
       gTextGrupo = loadText("Grupo: Felipe V. Kuhnert, Gabriel M. Pinheiro, Jose Lucas Filippi",
                             color, &textGrupo, gFontGrupo);
     }
-    /*Load PNG surface*/
     gBall = loadTexture("./assets/images/circle.png");
-    gBlock = loadTexture("./assets/images/block.png");
     gBlock1 = loadTexture("./assets/images/block1.png");
     gBlock2 = loadTexture("./assets/images/block2.png");
     gBlock3 = loadTexture("./assets/images/block3.png");
     gPlayer = loadTexture("./assets/images/player.png");
-    gBackground = loadTexture("./assets/images/background.png");
 
-    /*Loads audio files*/
-    if( gBall == NULL || gBlock == NULL || gPlayer == NULL) {
-        printf( "Failed to load image! SDL Error: %s\n", SDL_GetError() );
+    if( gBall == NULL || gBlock1 == NULL || gBlock2 == NULL || gBlock3 == NULL || gPlayer == NULL) {
+        printf("Falha ao carregar imagem. Erro: %s\n", SDL_GetError());
         success = false;
     }
     gBottom = Mix_LoadWAV("./assets/sounds/hitbottom.wav");
     if( gBottom == NULL ){
-        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
         success = false;
     }
     gWall = Mix_LoadWAV("./assets/sounds/hitwall.wav");
     if( gWall == NULL ){
-        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
         success = false;
     }
     gTop = Mix_LoadWAV("./assets/sounds/hittop.wav");
     if( gTop == NULL ){
-        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
         success = false;
     }
     gBlockHit = Mix_LoadWAV("./assets/sounds/hitblock.wav");
     if( gBlockHit == NULL ){
-        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
-        success = false;
-    }
-    gGameBegin = Mix_LoadWAV("./assets/sounds/gamebegin.wav");
-    if( gGameBegin == NULL ){
-        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
         success = false;
     }
     gMenu = Mix_LoadMUS("./assets/sounds/mus_menu.wav");
     if( gMenu == NULL ){
-        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
         success = false;
     }
     gFase1 = Mix_LoadMUS("./assets/sounds/mus_fase1.wav");
     if( gFase1 == NULL ){
-        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
         success = false;
     }
     gFase2 = Mix_LoadMUS("./assets/sounds/mus_fase2.wav");
     if( gFase2 == NULL ){
-        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
         success = false;
     }
     gFase3 = Mix_LoadMUS("./assets/sounds/mus_fase3.wav");
     if( gTop == NULL ){
-        printf( "Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
         success = false;
     }
     return success;
 }
 
 void closing() {
-    /*Free loaded image*/
-    SDL_DestroyTexture( gBall );
-    SDL_DestroyTexture( gBlock );
-    SDL_DestroyTexture( gBlock1 );
-    SDL_DestroyTexture( gBlock2 );
-    SDL_DestroyTexture( gBlock3 );
-    SDL_DestroyTexture( gPlayer );
+    /*Destroi textura das imagens utilizadas no jogo*/
+    SDL_DestroyTexture(gBall);
+    SDL_DestroyTexture(gBlock1);
+    SDL_DestroyTexture(gBlock2);
+    SDL_DestroyTexture(gBlock3);
+    SDL_DestroyTexture(gPlayer);
     gBall = NULL;
     gPlayer = NULL;
-    gBlock = NULL;
     gBlock1 = NULL;
     gBlock2 = NULL;
     gBlock3 = NULL;
 
-    /*Destroy window*/
-    SDL_DestroyWindow( gWindow );
+    /*Destroi janela e o renderer*/
+    SDL_DestroyWindow(gWindow);
+    SDL_DestroyRenderer(gRenderer);
+    gRenderer = NULL;
     gWindow = NULL;
 
-    /*Destroy audio*/
+    /*Libera memoria das variaveis de som*/
     Mix_FreeChunk(gBottom);
     Mix_FreeChunk(gTop);
     Mix_FreeChunk(gWall);
     Mix_FreeChunk(gBlockHit);
-    Mix_FreeChunk( gGameBegin );
-    Mix_FreeMusic( gFase3 );
-    Mix_FreeMusic( gFase2 );
-    Mix_FreeMusic( gFase1 );
-    Mix_FreeMusic( gMenu );
+    Mix_FreeMusic(gFase3);
+    Mix_FreeMusic(gFase2);
+    Mix_FreeMusic(gFase1);
+    Mix_FreeMusic(gMenu);
     gBottom = NULL;
     gTop = NULL;
     gWall = NULL;
     gBlockHit = NULL;
-    gGameBegin = NULL;
     gMenu = NULL;
     gFase1 = NULL;
     gFase2 = NULL;
     gFase3 = NULL;
 
-    /*Quit SDL subsystems*/
+    /*Destroi texturas dos textos utilizados no jogo*/
+    SDL_DestroyTexture(gTextStart);
+    SDL_DestroyTexture(gTextExit);
+    SDL_DestroyTexture(gTextLives);
+    SDL_DestroyTexture(gTextScore);
+    SDL_DestroyTexture(gTextCurScore);
+    SDL_DestroyTexture(gTextCurLives);
+    SDL_DestroyTexture(gTextMenu);
+    SDL_DestroyTexture(gTextResume);
+    SDL_DestroyTexture(gTextGrupo);
+    SDL_DestroyTexture(gTextArrow);
+    gTextStart = NULL;
+    gTextExit = NULL;
+    gTextLives = NULL;
+    gTextScore = NULL;
+    gTextCurScore = NULL;
+    gTextCurLives = NULL;
+    gTextMenu = NULL;
+    gTextResume = NULL;
+    gTextGrupo = NULL;
+    gTextArrow = NULL;
+
+    /*Libera a fonte utilizada*/
+    TTF_CloseFont(gFontGrupo);
+    TTF_CloseFont(gFontJogo);
+    TTF_CloseFont(gFontMenu);
+    gFontGrupo = NULL;
+    gFontMenu = NULL;
+    gFontJogo = NULL;
+
+    /*Termina os subsistemas do SDL*/
     Mix_CloseAudio();
     IMG_Quit();
+    TTF_Quit();
     SDL_Quit();
 }
 
-SDL_Texture* loadTexture( char *path )
+SDL_Texture* loadTexture(char *path)
 {
-    /*The final optimized image*/
+    /*Textura da imagem a ser carregada*/
     SDL_Texture* newTexture = NULL;
-
-    /*Load image at specified path*/
-    SDL_Surface* loadedSurface = IMG_Load( path );
-    if( loadedSurface == NULL ) {
-        printf( "Unable to load image %s! SDL_image Error: %s\n", path, IMG_GetError() );
+    /*Carrega a imagem em uma superficie*/
+    SDL_Surface* loadedSurface = IMG_Load(path);
+    /*Se houve falha, mostre o erro*/
+    if(loadedSurface == NULL) {
+        printf("Nao foi possivel carregar a imagem %s! Erro: %s\n", path, IMG_GetError());
     }
     else
     {
+        /*Introduzindo o colorkey*/
         colorkey = SDL_MapRGB (loadedSurface->format, 0xFF, 0xFF, 0xFF);
         SDL_SetColorKey(loadedSurface, SDL_TRUE, colorkey);
+        /*Cria-se textura a partir da superficie da imagem*/
         newTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
-        if( newTexture == NULL ) {
-            printf( "Nao foi possivel criar a textura de %s! Erro: %s\n", path, SDL_GetError() );
+        /*Se houve falha, mostre o erro*/
+        if(newTexture == NULL) {
+            printf("Nao foi possivel criar a textura de %s! Erro: %s\n", path, SDL_GetError());
         }
-        /*Get rid of old loaded surface*/
+        /*Libera o espaco da superficie carregada*/
         SDL_FreeSurface(loadedSurface);
     }
+    /*Retorna textura pronta*/
     return newTexture;
 }
 
 SDL_Texture* loadText(char* textureText, SDL_Color color, NPC* text, TTF_Font* font)
 {
+    /*Textura do texto*/
     SDL_Texture* newText;
+    /*Superficie contendo o texto*/
     SDL_Surface* textSurface = TTF_RenderText_Solid(font, textureText, color);
+    /*Se houve falha, mostre o erro*/
     if(textSurface == NULL)
     {
         printf("Unable to load font! Erro: %s\n", SDL_GetError());
     }
     else
     {
+        /*Cria a textura pela superficie do texto*/
         newText = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+        /*Se houve falha, mostre o erro*/
         if(newText == NULL) {
             printf( "Nao foi possivel criar a texto! Erro: %s\n", SDL_GetError() );
         }
+        /*Fornece a largura e altura desejada do texto ao NPC correspodente*/
         text->imgW = textSurface->w; text->imgH = textSurface->h;
+        /*Libera o espaco da superficie do texto*/
         SDL_FreeSurface(textSurface);
     }
+    /*Retorna o texto pronto*/
     return newText;
 }
 
 int hitNPC(NPC *object, int op, int vel, int *score)
 {
+    /*Compara HP da barra, se for 1, HP = 0, caso contrario, diminua 1 deste*/
     object->hp = object->hp <= 1 ? 0 : object->hp - 1;
     switch (object->hp){
       case 0:
+        /*Se HP for 0(bloco quebrado), aumente a score*/
         *score += 100;
         break;
+      /*Tipo de bloco, de acordo com o HP*/
       case 1:
         object->image = gBlock1;
         break;
@@ -334,31 +354,43 @@ int hitNPC(NPC *object, int op, int vel, int *score)
         object->image = gBlock3;
         break;
     }
+    /*Efeito sonoro de colisao com o bloco*/
     Mix_PlayChannel( -1, gTop, 0 );
+    /*Se a operacao resultar negativa, deixe-a positiva*/
     op = op < 0 ? -op : op;
+    /*Se a operacao realizada for menor ou igual a velocidade horizontal da bola...*/
     if(op <= vel) return 1;
+    /*Caso contrario*/
     else return 4;
 }
 
 int collisionNPC(NPC *object, NPC *circle, int *score)
 {
+  /*Operacao a se realizar*/
   int op;
+  /*Velocidade horizontal da bola*/
   int vel = circle->stepX;
+  /*Se velocidade for negativa, torne-a positiva dentro da funcao*/
   vel = vel < 0 ? -vel : vel;
+  /*Se a hitbox da bola coincidir com a posicao esquerda do bloco...*/
   if(circle->posX + IMAGE_WIDTH - 5 <= object->posX + 80 && circle->posX +
     IMAGE_WIDTH - 5 >= object->posX && circle->posY + 5 <= object->posY + 40
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
+    /*Verifique se ha mais pixels horizontais dentro da bola, para determinar se colidiu do lado ou em cima/baixo*/
     op = circle->posX + IMAGE_WIDTH - 5 - object->posX;
     return hitNPC(object, op, vel, score);
   }
+  /*Caso contrario, checa se a hitbox da bola coincide com a posicao direita do bloco*/
   else if(circle->posX + 5 >= object->posX && circle->posX + 5 <= object->posX + 80
     && circle->posY + 5 <= object->posY + 40
     && circle->posY + IMAGE_HEIGHT - 5 >= object->posY)
   {
+    /*Verifique se ha mais pixels horizontais dentro da bola, para determinar se colidiu do lado ou em cima/baixo*/
     op = circle->posX + 5 - (object->posX + 80);
     return hitNPC(object, op, vel, score);
   }
+  /*Se nao colidir...*/
   return 0;
 }
 
@@ -366,7 +398,6 @@ void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax){
   int scan, random;
   for (scan = 0; scan < 30; scan++){
     random = rand()%100;
-    printf("Random = %d\n", random);
     if (random > 20) bars[scan].hp = 1;
     if (random <= 20 && random > 7) bars[scan].hp = 2;
     if (random <= 7 && random >= 0) bars[scan].hp = 3;
@@ -393,50 +424,30 @@ void newlevel(NPC *bars, NPC *circle, NPC *p, int hpMax){
 
 void writeTextToScreen(SDL_Texture* text, int x, int y, int w, int h, bool* quit)
 {
+  /*Variavel que ira conter posicao do texto e suas medidas*/
   SDL_Rect dstTextRect;
+  /*Passa posicao e medidas a variavel*/
   dstTextRect.x = x; dstTextRect.y = y;
   dstTextRect.w = w; dstTextRect.h = h;
-  if( SDL_RenderCopy(gRenderer, text, NULL, &dstTextRect) < 0 )
+  /*Renderiza para tela o texto, se houve erro, avise e torne quit para true*/
+  if(SDL_RenderCopy(gRenderer, text, NULL, &dstTextRect) < 0)
   {
-    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+    printf("SDL nao conseguiu renderizar. Erro: %s\n", SDL_GetError());
     *quit = true;
   }
 }
 
-char* intToString(int i, char* string)
+void showCurNumber(int number, NPC* text, SDL_Texture* numberText, int x, int y, bool* quit)
 {
-  char digit[] = "0123456789";
-  char *p = string;
-  int shifter = i;
-  do
-  {
-    p++;
-    shifter = shifter/10;
-  }
-  while(shifter);
-  *p = '\0';
-  do
-  {
-    *p-- = digit[i%10];
-    i = i/10;
-  }
-  while(i);
-  return string;
-}
-
-void showCurScore(int score, NPC* text, SDL_Texture* numberText, int x, int y, bool* quit)
-{
-  SDL_Color color = {0x0A, 0xFF, 0x0A};
-  char stringScore[10];
-  numberText = loadText(intToString(score, stringScore), color, text, gFontGrupo);
-  writeTextToScreen(numberText, x, y, text->imgW, text->imgH, quit);
-}
-
-void showCurLives(int lives, NPC* text, SDL_Texture* numberText, int x, int y, bool* quit)
-{
-  SDL_Color color = {0xFF, 0x0A, 0x0A};
-  char stringLives[10];
-  numberText = loadText(intToString(lives, stringLives), color, text, gFontGrupo);
+  /*Cor do texto*/
+  SDL_Color color = {0x0A, 0x0A, 0x0A};
+  /*String que ira guardar texto desejado*/
+  char string[10];
+  /*Coloca o numero inteiro dentro da string*/
+  snprintf(string, 10, "%d", number);
+  /*Transforma string em uma textura*/
+  numberText = loadText(string, color, text, gFontGrupo);
+  /*Escreve textura para a tela*/
   writeTextToScreen(numberText, x, y, text->imgW, text->imgH, quit);
 }
 

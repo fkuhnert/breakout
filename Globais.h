@@ -10,7 +10,6 @@ extern SDL_Window* gWindow;
 extern SDL_Renderer* gRenderer;
 
 extern SDL_Texture* gBall;
-extern SDL_Texture* gBlock;
 extern SDL_Texture* gBlock1;
 extern SDL_Texture* gBlock2;
 extern SDL_Texture* gBlock3;
@@ -19,8 +18,6 @@ extern SDL_Texture* gBackground;
 
 extern SDL_Texture* gTextStart;
 extern SDL_Texture* gTextExit;
-extern SDL_Texture* gTextHighscore;
-extern SDL_Texture* gTextHighscores;
 extern SDL_Texture* gTextLives;
 extern SDL_Texture* gTextScore;
 extern SDL_Texture* gTextCurScore;
@@ -34,7 +31,6 @@ extern Mix_Chunk *gBottom;
 extern Mix_Chunk *gTop;
 extern Mix_Chunk *gWall;
 extern Mix_Chunk *gBlockHit;
-extern Mix_Chunk *gGameBegin;
 extern Mix_Music *gMenu;
 extern Mix_Music *gFase1;
 extern Mix_Music *gFase2;

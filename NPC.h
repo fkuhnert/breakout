@@ -1,6 +1,7 @@
 #ifndef NPC_H
 #define NPC_H
 
+/*Estrutura utilizada por objetos e texto*/
 typedef struct _NPC {
     int posX;
     int posY;
@@ -12,10 +13,12 @@ typedef struct _NPC {
     int hp;
 } NPC;
 
+/*Objetos do jogo*/
 extern NPC ball;
 extern NPC bars[30];
 extern NPC player;
 
+/*Texto do jogo*/
 extern NPC textStart;
 extern NPC textExit;
 extern NPC textHighscores;

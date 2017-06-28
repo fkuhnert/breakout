@@ -33,9 +33,7 @@ void newlevel(NPC *, NPC *, NPC *, int);
 
 void writeTextToScreen(SDL_Texture*, int, int, int, int, bool*);
 
-void showCurScore(int score, NPC* text, SDL_Texture* numberText, int x, int y, bool* quit);
-
-void showCurLives(int lives, NPC* text, SDL_Texture* numberText, int x, int y, bool* quit);
+void showCurNumber(int, NPC*, SDL_Texture*, int, int, bool*);
 
 void writeName(SDL_Event *, char*, int*, bool*);
 

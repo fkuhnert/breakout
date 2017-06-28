@@ -46,7 +46,6 @@ uint32_t colorkey;
 SDL_Renderer* gRenderer = NULL;
 
 SDL_Texture* gBall = NULL;
-SDL_Texture* gBlock = NULL;
 SDL_Texture* gBlock1 = NULL;
 SDL_Texture* gBlock2 = NULL;
 SDL_Texture* gBlock3 = NULL;
@@ -55,7 +54,6 @@ SDL_Texture* gBackground = NULL;
 
 SDL_Texture* gTextStart = NULL;
 SDL_Texture* gTextExit = NULL;
-SDL_Texture* gTextHighscores = NULL;
 SDL_Texture* gTextLives = NULL;
 SDL_Texture* gTextScore = NULL;
 SDL_Texture* gTextCurScore = NULL;
@@ -69,7 +67,6 @@ Mix_Chunk *gBottom = NULL;
 Mix_Chunk *gTop = NULL;
 Mix_Chunk *gWall = NULL;
 Mix_Chunk *gBlockHit = NULL;
-Mix_Chunk *gGameBegin = NULL;
 Mix_Music *gMenu = NULL;
 Mix_Music *gFase1 = NULL;
 Mix_Music *gFase2 = NULL;

@@ -1,12 +1,3 @@
-/* Trabalho por:
-            Leonardo Santos: DRE:116036858
-            Julio Milhm: DRE:116016387
-            Davson Santos DRE:116016670
-
-    Modificado por:
-    *       Adriano Cruz (2017-1)
-*/
-
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -34,11 +25,10 @@ int main(int argc, char* args[])
     int loopNum = 0;
     bool quit, returnGame;
     score = 0;
-    if(!init()) printf("Failed to initialize!\n");
+    if(!init()) printf("Falha em iniciar.\n");
     else
     {
-        /*Load media*/
-        if(!loadMedia()) printf("Failed to load media!\n");
+        if(!loadMedia()) printf("Falha em carregar midia.\n");
         else
         {
             ball = createNPC(INIT_WIDTH, INIT_HEIGHT, 0, 1, gBall,
@@ -48,7 +38,7 @@ int main(int argc, char* args[])
             {
               for(curW = 0; curW < 10; curW++)
               {
-                bars[curW + 10*curH] = createNPC(curW*80, curH*40, 0, 0, gBlock,
+                bars[curW + 10*curH] = createNPC(curW*80, curH*40, 0, 0, gBlock1,
                                                  80, 40, 0);
               }
             }
@@ -57,11 +47,9 @@ int main(int argc, char* args[])
                                PLAYER_HEIGHT, 0);
 
             curSong = 10;
-
-            /*Main loop flag*/
             quit = false;
+
             curScreen = SCREEN_MENU;
-            /*While application is running*/
             while(!quit)
             {
               curOptionMenu = 0;
@@ -97,8 +85,8 @@ int main(int argc, char* args[])
                           if(curOptionMenu == 0)
                           {
                             curScreen = SCREEN_GAME;
-                            Mix_PlayChannel(-1, gGameBegin, 0);
                             newlevel(bars, &ball, &player, hpMax);
+                            ball.hp = 3;
                             SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
                           }
                           else quit = true;
@@ -122,9 +110,6 @@ int main(int argc, char* args[])
                      writeTextToScreen(gTextArrow, 60 + textExit.imgW, 400 - textExit.imgH,
                                        textArrow.imgW, textArrow.imgH, &quit);
                    }
-                   writeTextToScreen(gTextHighscores, 400 + (SCREEN_WIDTH - textHighscores.imgW - 400)/2,
-                                     100 - textHighscores.imgH, textHighscores.imgW,
-                                     textHighscores.imgH, &quit);
                    writeTextToScreen(gTextGrupo, 0, 600 - textGrupo.imgH, textGrupo.imgW,
                                      textGrupo.imgH, &quit);
                    SDL_RenderPresent(gRenderer);
@@ -238,6 +223,14 @@ int main(int argc, char* args[])
                           break;
                       }
                   }
+                  if(ball.hp == 0)
+                  {
+                    score = 0;
+                    hpMax = 1;
+                    ball.hp = hpPlayer;
+                    curScreen = SCREEN_MENU;
+                    break;
+                  }
                   checkcollideplayer(&ball, &player);
 
                   moveNPC(&ball);
@@ -254,7 +247,7 @@ int main(int argc, char* args[])
                     hpMax++;
                     if (hpMax > 3) hpMax = 3;
                     newlevel(bars, &ball, &player, hpMax);
-                    break;
+                    continue;
                   }
                   if(state == 1 || state == 2) ball.stepX = -ball.stepX;
                   else if (state == 4 || state == 5 || state == 8) ball.stepY = -ball.stepY;
@@ -266,18 +259,14 @@ int main(int argc, char* args[])
                   dstPlayerRect.w = player.imgW; dstPlayerRect.h = player.imgH;
 
                   SDL_RenderClear(gRenderer);
-                  writeTextToScreen(gTextScore, 0, 580 - textScore.imgH, textScore.imgW,
-                                    textScore.imgH, &quit);
-                  writeTextToScreen(gTextLives, 0, 600 - textLives.imgH, textLives.imgW,
-                                    textLives.imgH, &quit);
                   if( SDL_RenderCopy(gRenderer, ball.image, NULL, &dstRect ) < 0 )
                   {
-                    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                    printf("SDL nao conseguiu renderizar. Erro: %s\n", SDL_GetError());
                     quit = true;
                   }
                   if( SDL_RenderCopy(gRenderer, player.image, NULL, &dstPlayerRect) < 0 )
                   {
-                    printf( "SDL could not blit! SDL Error: %s\n", SDL_GetError() );
+                    printf("SDL nao conseguiu renderizar. Erro: %s\n", SDL_GetError());
                     quit = true;
                   }
                   for (state = 0; state < 30; state++)
@@ -288,24 +277,26 @@ int main(int argc, char* args[])
                       dstBarsRect.w = bars[state].imgW; dstBarsRect.h = bars[state].imgH;
                       if(SDL_RenderCopy(gRenderer, bars[state].image, NULL, &dstBarsRect) < 0)
                       {
-                        printf("SDL could not blit! SDL Error: %s\n", SDL_GetError());
+                        printf("SDL nao conseguiu renderizar. Erro: %s\n", SDL_GetError());
                         quit = true;
                         break;
                       }
                     }
                   }
-                  showCurScore(score, &textCurScore, gTextCurScore, textScore.imgW + 10,
+                  writeTextToScreen(gTextScore, 0, 580 - textScore.imgH, textScore.imgW,
+                                    textScore.imgH, &quit);
+                  writeTextToScreen(gTextLives, 0, 600 - textLives.imgH, textLives.imgW,
+                                    textLives.imgH, &quit);
+                  showCurNumber(score, &textCurScore, gTextCurScore, textScore.imgW + 10,
                                 580 - textScore.imgH, &quit);
-                  showCurLives(ball.hp, &textCurLives, gTextCurLives, textLives.imgW + 10,
+                  showCurNumber(ball.hp, &textCurLives, gTextCurLives, textLives.imgW + 10,
                                 600 - textLives.imgH, &quit);
                   SDL_RenderPresent(gRenderer);
                   if (avgtime > 14 && delay > 0){
                     delay--;
-                    printf("Reduzi o delay para %d\n", delay);
                   }
                   if (avgtime < 10 && delay < 3){
                     delay++;
-                    printf("Aumentei o delay para %d\n", delay);
                   }
                   SDL_Delay(delay);
                 }
