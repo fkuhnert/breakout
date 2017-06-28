@@ -22,7 +22,7 @@ void moveNPC(NPC *p) {
     }
     if (p->posY + IMAGE_HEIGHT > SCREEN_HEIGHT)
     {
-        Mix_PlayChannel(-1, gBottom, 0);
+        Mix_PlayChannel(-1, gHpMinus, 0);
         p->hp = p->hp - 1 < 0 ? 0 : p->hp - 1;
         p->posX = INIT_WIDTH;
         p->posY = INIT_HEIGHT;
@@ -181,6 +181,11 @@ bool loadMedia() {
         printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
         success = false;
     }
+    gHpMinus = Mix_LoadWAV("./assets/sounds/hpminus.wav");
+    if( gHpMinus == NULL ){
+        printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
+        success = false;
+    }
     gMenu = Mix_LoadMUS("./assets/sounds/mus_menu.wav");
     if( gMenu == NULL ){
         printf("Falha ao carregar som. Erro: %s\n", Mix_GetError());
@@ -228,6 +233,7 @@ void closing() {
     Mix_FreeChunk(gTop);
     Mix_FreeChunk(gWall);
     Mix_FreeChunk(gBlockHit);
+    Mix_FreeChunk(gHpMinus);
     Mix_FreeMusic(gFase3);
     Mix_FreeMusic(gFase2);
     Mix_FreeMusic(gFase1);
@@ -236,6 +242,7 @@ void closing() {
     gTop = NULL;
     gWall = NULL;
     gBlockHit = NULL;
+    gHpMinus = NULL;
     gMenu = NULL;
     gFase1 = NULL;
     gFase2 = NULL;
@@ -355,7 +362,7 @@ int hitNPC(NPC *object, int op, int vel, int *score)
         break;
     }
     /*Efeito sonoro de colisao com o bloco*/
-    Mix_PlayChannel( -1, gTop, 0 );
+    Mix_PlayChannel( -1, gBlockHit, 0 );
     /*Se a operacao resultar negativa, deixe-a positiva*/
     op = op < 0 ? -op : op;
     /*Se a operacao realizada for menor ou igual a velocidade horizontal da bola...*/

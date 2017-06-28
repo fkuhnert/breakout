@@ -67,6 +67,7 @@ Mix_Chunk *gBottom = NULL;
 Mix_Chunk *gTop = NULL;
 Mix_Chunk *gWall = NULL;
 Mix_Chunk *gBlockHit = NULL;
+Mix_Chunk *gHpMinus = NULL;
 Mix_Music *gMenu = NULL;
 Mix_Music *gFase1 = NULL;
 Mix_Music *gFase2 = NULL;

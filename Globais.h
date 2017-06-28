@@ -31,6 +31,7 @@ extern Mix_Chunk *gBottom;
 extern Mix_Chunk *gTop;
 extern Mix_Chunk *gWall;
 extern Mix_Chunk *gBlockHit;
+extern Mix_Chunk *gHpMinus;
 extern Mix_Music *gMenu;
 extern Mix_Music *gFase1;
 extern Mix_Music *gFase2;
